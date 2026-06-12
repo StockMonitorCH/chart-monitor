@@ -310,4 +310,33 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wlSortGics => 'Sektor (GICS)';
+
+  @override
+  String get checkForUpdates => 'Nach Updates suchen';
+
+  @override
+  String get updateAvailable => 'Update verfügbar';
+
+  @override
+  String updateAvailableDesc(String version) {
+    return 'Version $version ist verfügbar.\n\nAuf «Download» tippen → APK wird im Browser heruntergeladen → in der Download-Benachrichtigung auf «Öffnen» tippen → Installieren.';
+  }
+
+  @override
+  String get updateLater => 'Später';
+
+  @override
+  String get updateDownload => 'Download';
+
+  @override
+  String updateUpToDate(String version) {
+    return 'App ist aktuell (v$version)';
+  }
+
+  @override
+  String get privacyConsentBody =>
+      'Chart Monitor speichert keine persönlichen Daten. Kursdaten werden live von Yahoo Finance abgerufen.\n\nBitte stimme unserer Datenschutzerklärung zu, um die App zu nutzen.';
+
+  @override
+  String get noConnection => 'Keine Verbindung';
 }

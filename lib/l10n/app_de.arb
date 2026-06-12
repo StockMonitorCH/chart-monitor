@@ -101,5 +101,15 @@
   "wlSortZA": "Z → A",
   "wlSortPerfDesc": "Performance ↓",
   "wlSortPerfAsc": "Performance ↑",
-  "wlSortGics": "Sektor (GICS)"
+  "wlSortGics": "Sektor (GICS)",
+  "checkForUpdates": "Nach Updates suchen",
+  "updateAvailable": "Update verfügbar",
+  "updateAvailableDesc": "Version {version} ist verfügbar.\n\nAuf «Download» tippen → APK wird im Browser heruntergeladen → in der Download-Benachrichtigung auf «Öffnen» tippen → Installieren.",
+  "@updateAvailableDesc": {"placeholders": {"version": {"type": "String"}}},
+  "updateLater": "Später",
+  "updateDownload": "Download",
+  "updateUpToDate": "App ist aktuell (v{version})",
+  "@updateUpToDate": {"placeholders": {"version": {"type": "String"}}},
+  "privacyConsentBody": "Chart Monitor speichert keine persönlichen Daten. Kursdaten werden live von Yahoo Finance abgerufen.\n\nBitte stimme unserer Datenschutzerklärung zu, um die App zu nutzen.",
+  "noConnection": "Keine Verbindung"
 }

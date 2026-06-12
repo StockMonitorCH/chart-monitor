@@ -2,11 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 
-class InfoDialog extends StatelessWidget {
-  const InfoDialog({super.key});
+const _kPrivacyUrl =
+    'https://stockmonitorch.github.io/chart-monitor/privacy.html';
+const _kLicenseUrl =
+    'https://github.com/StockMonitorCH/chart-monitor/blob/main/LICENSE';
 
-  static void show(BuildContext context) {
-    showDialog(context: context, builder: (_) => const InfoDialog());
+class InfoDialog extends StatelessWidget {
+  final VoidCallback? onCheckUpdate;
+  const InfoDialog({super.key, this.onCheckUpdate});
+
+  static void show(BuildContext context, {VoidCallback? onCheckUpdate}) {
+    showDialog(
+      context: context,
+      builder: (_) => InfoDialog(onCheckUpdate: onCheckUpdate),
+    );
   }
 
   @override
@@ -21,7 +30,6 @@ class InfoDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header wie FX Calc
             Center(
               child: Column(
                 children: [
@@ -66,14 +74,30 @@ class InfoDialog extends StatelessWidget {
             ),
             const Divider(),
             _Section(
+              icon: Icons.system_update_outlined,
+              title: l10n.checkForUpdates,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.system_update_outlined, size: 16),
+                label: Text(l10n.checkForUpdates,
+                    style: const TextStyle(fontSize: 13)),
+                onPressed: onCheckUpdate != null
+                    ? () {
+                        Navigator.pop(context);
+                        onCheckUpdate!();
+                      }
+                    : null,
+              ),
+            ),
+            const Divider(),
+            _Section(
               icon: Icons.volunteer_activism,
               title: l10n.infoDonate,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.infoDonateDesc, style: const TextStyle(fontSize: 13)),
+                  Text(l10n.infoDonateDesc,
+                      style: const TextStyle(fontSize: 13)),
                   const SizedBox(height: 10),
-                  // Twint QR-Code
                   Center(
                     child: Column(
                       children: [
@@ -82,10 +106,13 @@ class InfoDialog extends StatelessWidget {
                           width: 120,
                           height: 120,
                           fit: BoxFit.contain,
-                          errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
+                          errorBuilder: (ctx, err, stack) =>
+                              const SizedBox.shrink(),
                         ),
                         const SizedBox(height: 4),
-                        const Text('TWINT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        const Text('TWINT',
+                            style: TextStyle(
+                                fontSize: 11, fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -112,7 +139,11 @@ class InfoDialog extends StatelessWidget {
             _Section(
               icon: Icons.lock_outline,
               title: l10n.infoPrivacy,
-              child: Text(l10n.privacyText, style: const TextStyle(fontSize: 13)),
+              child: _LinkButton(
+                label: l10n.privacyTitle,
+                url: _kPrivacyUrl,
+                icon: Icons.open_in_new,
+              ),
             ),
             const Divider(),
             _Section(
@@ -120,7 +151,7 @@ class InfoDialog extends StatelessWidget {
               title: l10n.infoLicense,
               child: _LinkButton(
                 label: 'GPL-3.0',
-                url: 'https://www.gnu.org/licenses/gpl-3.0.html',
+                url: _kLicenseUrl,
                 icon: Icons.open_in_new,
               ),
             ),
@@ -157,7 +188,8 @@ class _Section extends StatelessWidget {
               Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 6),
               Text(title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 13)),
             ],
           ),
           const SizedBox(height: 6),
@@ -173,7 +205,8 @@ class _LinkButton extends StatelessWidget {
   final String url;
   final IconData icon;
 
-  const _LinkButton({required this.label, required this.url, required this.icon});
+  const _LinkButton(
+      {required this.label, required this.url, required this.icon});
 
   @override
   Widget build(BuildContext context) {

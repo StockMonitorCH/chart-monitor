@@ -1,6 +1,12 @@
+import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
 import '../models/chart_state.dart';
 import '../models/stock_data.dart';
@@ -12,8 +18,109 @@ import '../widgets/stock_chart.dart';
 import '../widgets/stock_details_sheet.dart';
 import '../widgets/watchlist_sheet.dart';
 
-class HomeScreen extends StatelessWidget {
+const _kPrivacyUrl =
+    'https://stockmonitorch.github.io/chart-monitor/privacy.html';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _checkPrivacyConsent());
+    Future.delayed(const Duration(seconds: 3), _checkForUpdate);
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _version = info.version);
+  }
+
+  Future<void> _checkPrivacyConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accepted = prefs.getBool('privacy_accepted') ?? false;
+    if (accepted || !mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const _PrivacyConsentDialog(),
+    );
+  }
+
+  Future<void> _checkForUpdate({bool showUpToDate = false}) async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final current = info.version;
+      final r = await http
+          .get(
+            Uri.parse(
+                'https://api.github.com/repos/StockMonitorCH/chart-monitor/releases/latest'),
+            headers: {'Accept': 'application/vnd.github+json'},
+          )
+          .timeout(const Duration(seconds: 8));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
+      if (r.statusCode != 200) {
+        if (showUpToDate) _showSnack('Error: HTTP ${r.statusCode}');
+        return;
+      }
+      final j = jsonDecode(r.body) as Map<String, dynamic>;
+      final tag =
+          (j['tag_name'] as String).replaceFirst(RegExp(r'^v'), '');
+      if (!_isNewer(tag, current)) {
+        if (showUpToDate) _showSnack(l10n.updateUpToDate(current));
+        return;
+      }
+      final assets = (j['assets'] as List).cast<Map<String, dynamic>>();
+      Map<String, dynamic>? apk;
+      for (final a in assets) {
+        if ((a['name'] as String).endsWith('.apk')) {
+          apk = a;
+          break;
+        }
+      }
+      if (apk == null) return;
+      final url = apk['browser_download_url'] as String;
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => _UpdateDialog(version: tag, downloadUrl: url),
+      );
+    } catch (_) {
+      if (mounted && showUpToDate) {
+        final l10n = AppLocalizations.of(context)!;
+        _showSnack(l10n.noConnection);
+      }
+    }
+  }
+
+  void _showSnack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), duration: const Duration(seconds: 3)),
+    );
+  }
+
+  bool _isNewer(String remote, String current) {
+    final r = remote.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+    final c = current.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+    for (int i = 0; i < math.max(r.length, c.length); i++) {
+      final rv = i < r.length ? r[i] : 0;
+      final cv = i < c.length ? c[i] : 0;
+      if (rv > cv) return true;
+      if (rv < cv) return false;
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +131,10 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chart Monitor  v1.0.3',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+            _version.isNotEmpty ? 'Chart Monitor  v$_version' : 'Chart Monitor',
+            style:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         actions: [
           IconButton(
             icon: const Icon(Icons.bookmarks_outlined),
@@ -40,7 +149,10 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: l10n.infoTitle,
-            onPressed: () => InfoDialog.show(context),
+            onPressed: () => InfoDialog.show(
+              context,
+              onCheckUpdate: () => _checkForUpdate(showUpToDate: true),
+            ),
           ),
         ],
       ),
@@ -826,6 +938,78 @@ class _IndicatorChip extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ── Privacy consent dialog ────────────────────────────────────────────────────
+
+class _PrivacyConsentDialog extends StatelessWidget {
+  const _PrivacyConsentDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(l10n.privacyTitle),
+      content: Text(l10n.privacyConsentBody),
+      actions: [
+        TextButton(
+          onPressed: () => launchUrl(Uri.parse(_kPrivacyUrl),
+              mode: LaunchMode.externalApplication),
+          child: Text(l10n.infoPrivacy),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            // Close the app on decline
+            // ignore: use_build_context_synchronously
+            Navigator.of(context).maybePop();
+          },
+          child: Text(l10n.infoPrivacyDecline,
+              style: const TextStyle(color: Colors.grey)),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('privacy_accepted', true);
+            if (context.mounted) Navigator.of(context).pop();
+          },
+          child: Text(l10n.infoPrivacyAccept),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Update dialog ─────────────────────────────────────────────────────────────
+
+class _UpdateDialog extends StatelessWidget {
+  final String version;
+  final String downloadUrl;
+  const _UpdateDialog({required this.version, required this.downloadUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(l10n.updateAvailable),
+      content: Text(l10n.updateAvailableDesc(version)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.updateLater),
+        ),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.download),
+          label: Text(l10n.updateDownload),
+          onPressed: () {
+            launchUrl(Uri.parse(downloadUrl),
+                mode: LaunchMode.externalApplication);
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

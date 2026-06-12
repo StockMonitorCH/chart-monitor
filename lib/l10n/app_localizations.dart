@@ -673,6 +673,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sector (GICS)'**
   String get wlSortGics;
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get checkForUpdates;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Update available'**
+  String get updateAvailable;
+
+  /// No description provided for @updateAvailableDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available.\n\nTap «Download» → APK downloads in browser → tap «Open» in the download notification → Install.'**
+  String updateAvailableDesc(String version);
+
+  /// No description provided for @updateLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// No description provided for @updateDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get updateDownload;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'App is up to date (v{version})'**
+  String updateUpToDate(String version);
+
+  /// No description provided for @privacyConsentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart Monitor does not store personal data. Price data is fetched live from Yahoo Finance.\n\nPlease accept our privacy policy to use the app.'**
+  String get privacyConsentBody;
+
+  /// No description provided for @noConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get noConnection;
 }
 
 class _AppLocalizationsDelegate
