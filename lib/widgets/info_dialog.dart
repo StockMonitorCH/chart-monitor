@@ -9,12 +9,15 @@ const _kLicenseUrl =
 
 class InfoDialog extends StatelessWidget {
   final VoidCallback? onCheckUpdate;
-  const InfoDialog({super.key, this.onCheckUpdate});
+  final String version;
+  const InfoDialog({super.key, this.onCheckUpdate, this.version = ''});
 
-  static void show(BuildContext context, {VoidCallback? onCheckUpdate}) {
+  static void show(BuildContext context,
+      {VoidCallback? onCheckUpdate, String version = ''}) {
     showDialog(
       context: context,
-      builder: (_) => InfoDialog(onCheckUpdate: onCheckUpdate),
+      builder: (_) =>
+          InfoDialog(onCheckUpdate: onCheckUpdate, version: version),
     );
   }
 
@@ -38,6 +41,22 @@ class InfoDialog extends StatelessWidget {
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: cs.primary)),
+                  if (version.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text('v$version',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: cs.onPrimary)),
+                    ),
+                  ],
                   const SizedBox(height: 2),
                   Text(l10n.infoAppSubtitle,
                       style: TextStyle(

@@ -166,6 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
             tooltip: l10n.infoTitle,
             onPressed: () => InfoDialog.show(
               context,
+              version: _version,
               onCheckUpdate: () => _checkForUpdate(showUpToDate: true),
             ),
           ),
