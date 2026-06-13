@@ -12,7 +12,9 @@ import '../models/chart_state.dart';
 import '../models/stock_data.dart';
 import '../widgets/candlestick_chart.dart';
 import '../widgets/fx_calc_sheet.dart';
+import '../widgets/index_sheet.dart';
 import '../widgets/info_dialog.dart';
+import '../widgets/notes_sheet.dart';
 import '../widgets/search_field.dart';
 import '../widgets/stock_chart.dart';
 import '../widgets/stock_details_sheet.dart';
@@ -142,6 +144,19 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => WatchlistSheet.show(context),
           ),
           IconButton(
+            icon: const Icon(Icons.bar_chart_outlined),
+            tooltip: l10n.indicesTitle,
+            onPressed: () => IndexSheet.show(context),
+          ),
+          IconButton(
+            icon: const Icon(Icons.notes_outlined),
+            tooltip: l10n.notesTitle,
+            onPressed: () => NotesSheet.show(
+              context,
+              currentSymbol: context.read<ChartState>().stock1Info?.symbol,
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.calculate_outlined),
             tooltip: l10n.fxCalcTitle,
             onPressed: () => FxCalcSheet.show(context),
@@ -199,7 +214,7 @@ class _LandscapeLayout extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 220,
+          width: 180,
           child: Column(
             children: [
               Expanded(
@@ -890,6 +905,23 @@ class _IndicatorBar extends StatelessWidget {
               color: Colors.green.shade400,
               onTap: () => context.read<ChartState>().toggleTargetLine(),
             ),
+            // BB only for ≥ 3M (needs enough data to be meaningful)
+            if (ChartState.bbSupportedRange(state.selectedRange)) ...[
+              const SizedBox(width: 8),
+              Container(
+                width: 1,
+                height: 16,
+                color: Theme.of(context).dividerColor,
+              ),
+              const SizedBox(width: 8),
+              _IndicatorChip(
+                label: 'BB',
+                active: state.showBollinger,
+                enabled: state.stock1Data.length >= 20,
+                color: Colors.purple.shade300,
+                onTap: () => context.read<ChartState>().toggleBollinger(),
+              ),
+            ],
           ],
         ),
       ),

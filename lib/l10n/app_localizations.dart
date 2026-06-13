@@ -721,6 +721,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No connection'**
   String get noConnection;
+
+  /// No description provided for @indicesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Indices'**
+  String get indicesTitle;
+
+  /// No description provided for @indicesCompareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Load index as comparison'**
+  String get indicesCompareHint;
+
+  /// No description provided for @indexCompareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Index Comparison'**
+  String get indexCompareTitle;
+
+  /// No description provided for @indexCompareShowWatchlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Include Watchlist'**
+  String get indexCompareShowWatchlist;
+
+  /// No description provided for @indexCompareSelectIndices.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Indices'**
+  String get indexCompareSelectIndices;
+
+  /// No description provided for @indexCompareAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get indexCompareAll;
+
+  /// No description provided for @indexCompareNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get indexCompareNone;
+
+  /// No description provided for @notesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get notesTitle;
+
+  /// No description provided for @notesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet'**
+  String get notesEmpty;
+
+  /// No description provided for @notesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get notesAdd;
+
+  /// No description provided for @notesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter note…'**
+  String get notesHint;
+
+  /// No description provided for @notesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get notesDelete;
+
+  /// No description provided for @notesClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get notesClearAll;
+
+  /// No description provided for @notesClearAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all notes?'**
+  String get notesClearAllConfirm;
 }
 
 class _AppLocalizationsDelegate

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,28 +33,38 @@ class StockChart extends StatelessWidget {
     final base1 = data1.first.close;
     final base2 = data2.isNotEmpty ? data2.first.close : 1.0;
 
-    // Single stock: color based on performance (green/red like Yahoo Finance)
     final isUp = data1.last.close >= data1.first.close;
     final color1 = isSingle
         ? (isUp ? Colors.green.shade400 : Colors.red.shade400)
         : Theme.of(context).colorScheme.primary;
     const color2 = Colors.orange;
 
-    List<FlSpot> toSpots(List<ChartDataPoint> pts, double base) {
+    // When comparing two stocks the X range is anchored to data1 length.
+    // data2 is stretched/compressed proportionally so both lines always span
+    // the full chart width regardless of how many data points each stock has
+    // (different exchanges have different trading hours → different counts).
+    List<FlSpot> toSpots(List<ChartDataPoint> pts, double base, {double? forceMaxX}) {
+      if (pts.isEmpty) return [];
+      final maxX = forceMaxX ?? (pts.length - 1).toDouble();
+      if (pts.length == 1) {
+        return [FlSpot(0, normalize ? 0.0 : pts.first.close)];
+      }
       return pts.asMap().entries.map((e) {
+        final x = (e.key / (pts.length - 1)) * maxX;
         final y = normalize ? ((e.value.close / base) - 1) * 100 : e.value.close;
-        return FlSpot(e.key.toDouble(), y);
+        return FlSpot(x, y);
       }).toList();
     }
 
+    final refMaxX = (data1.length - 1).toDouble();
     final spots1 = toSpots(data1, base1);
-    final spots2 = data2.isNotEmpty ? toSpots(data2, base2) : <FlSpot>[];
+    final spots2 = data2.isNotEmpty
+        ? toSpots(data2, base2, forceMaxX: refMaxX)
+        : <FlSpot>[];
 
-    // Build combined data (warmup before chart + chart) for MA calculation
     final combinedMaData = _buildMaData(data1, maWarmupData);
     final visibleStart = combinedMaData.length - data1.length;
 
-    // MA lines (only for single stock, absolute values)
     final ma20Spots = (isSingle && indicators.showMa20)
         ? _calcMA(combinedMaData, 20, visibleStart)
         : <FlSpot>[];
@@ -64,18 +75,23 @@ class StockChart extends StatelessWidget {
         ? _calcMA(combinedMaData, 200, visibleStart)
         : <FlSpot>[];
 
-    // Trend line (linear regression over spots1)
     final trendSpots = (isSingle && indicators.showTrendLine)
         ? _calcTrendLine(spots1)
         : <FlSpot>[];
 
-    // Target line (horizontal at analyst target price)
     final targetPrice = (isSingle && indicators.showTargetLine && indicators.analystTarget != null)
         ? indicators.analystTarget!
         : null;
     final targetSpots = targetPrice != null
         ? [FlSpot(0, targetPrice), FlSpot((data1.length - 1).toDouble(), targetPrice)]
         : <FlSpot>[];
+
+    // Bollinger Bands (only single stock, absolute prices)
+    final bbResult = (isSingle && indicators.showBollinger && !normalize && data1.length >= 20)
+        ? _calcBollinger(data1, 20, 2.0)
+        : (upper: <FlSpot>[], lower: <FlSpot>[]);
+    final bbUpperSpots = bbResult.upper;
+    final bbLowerSpots = bbResult.lower;
 
     final allY = [
       ...spots1.map((s) => s.y),
@@ -84,11 +100,15 @@ class StockChart extends StatelessWidget {
       ...ma50Spots.map((s) => s.y),
       ...ma200Spots.map((s) => s.y),
       ...trendSpots.map((s) => s.y),
+      ...bbUpperSpots.map((s) => s.y),
+      ...bbLowerSpots.map((s) => s.y),
       ?targetPrice,
     ];
     final minY = allY.reduce((a, b) => a < b ? a : b);
     final maxY = allY.reduce((a, b) => a > b ? a : b);
     final padding = (maxY - minY) * 0.1 + 0.01;
+
+    final bbColor = Colors.purple.shade300;
 
     final lineBars = [
       LineChartBarData(
@@ -115,6 +135,38 @@ class StockChart extends StatelessWidget {
           color: color2,
           barWidth: 2,
           dotData: const FlDotData(show: false),
+        ),
+      if (bbUpperSpots.isNotEmpty)
+        LineChartBarData(
+          spots: bbUpperSpots,
+          isCurved: false,
+          color: bbColor,
+          barWidth: 1,
+          dashArray: [5, 3],
+          dotData: const FlDotData(show: false),
+          belowBarData: BarAreaData(show: false),
+        ),
+      if (bbLowerSpots.isNotEmpty)
+        LineChartBarData(
+          spots: bbLowerSpots,
+          isCurved: false,
+          color: bbColor,
+          barWidth: 1,
+          dashArray: [5, 3],
+          dotData: const FlDotData(show: false),
+          belowBarData: BarAreaData(
+            show: bbUpperSpots.isNotEmpty,
+            color: bbColor.withAlpha(25),
+            // fills between lower and upper by spotsLine referencing bar index 2 (upper)
+            applyCutOffY: false,
+            spotsLine: BarAreaSpotsLine(show: false),
+          ),
+          aboveBarData: BarAreaData(
+            show: bbUpperSpots.isNotEmpty,
+            color: bbColor.withAlpha(25),
+            cutOffY: bbUpperSpots.isNotEmpty ? bbUpperSpots.first.y : 0,
+            applyCutOffY: false,
+          ),
         ),
       if (ma20Spots.isNotEmpty)
         LineChartBarData(
@@ -165,7 +217,9 @@ class StockChart extends StatelessWidget {
         ),
     ];
 
-    final labelIndices = _labelPositions(data1.length, 5);
+    // Fewer labels for intraday (narrow time slots)
+    final labelCount = range.isIntraday ? 3 : 4;
+    final labelIndices = _labelPositions(data1.length, labelCount);
 
     return Column(
       children: [
@@ -178,6 +232,7 @@ class StockChart extends StatelessWidget {
             showMa200: ma200Spots.isNotEmpty,
             showTrend: trendSpots.isNotEmpty,
             showTarget: targetSpots.isNotEmpty,
+            showBollinger: bbUpperSpots.isNotEmpty,
             targetPrice: targetPrice,
           ),
         Expanded(
@@ -191,8 +246,13 @@ class StockChart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: normalize ? 56 : 64,
-                    getTitlesWidget: (value, meta) =>
-                        _leftTitle(value, normalize, context),
+                    getTitlesWidget: (value, meta) {
+                      // Skip boundary values to prevent overlap at top/bottom
+                      if (value == meta.min || value == meta.max) {
+                        return const SizedBox.shrink();
+                      }
+                      return _leftTitle(value, normalize, context);
+                    },
                   ),
                 ),
                 bottomTitles: AxisTitles(
@@ -201,7 +261,7 @@ class StockChart extends StatelessWidget {
                     reservedSize: 22,
                     interval: 1,
                     getTitlesWidget: (value, meta) => _bottomTitle(
-                      value.toInt(), data1, range, labelIndices, context),
+                      value.toInt(), data1, range, labelIndices, context, meta),
                   ),
                 ),
                 topTitles: const AxisTitles(
@@ -240,7 +300,7 @@ class StockChart extends StatelessWidget {
                           isLine2 ? (label2 ?? 'Stock 2') : (label1 ?? 'Stock 1');
                       final price = pts[idx].close;
                       final dt = pts[idx].time;
-                      final dateFmt = range.isIntraday
+                      final dateFmt = range == TimeRange.oneDay
                           ? DateFormat('HH:mm')
                           : DateFormat('dd.MM.yyyy');
                       final dateStr = dateFmt.format(dt);
@@ -267,9 +327,9 @@ class StockChart extends StatelessWidget {
       indicators.showMa50 ||
       indicators.showMa200 ||
       indicators.showTrendLine ||
-      indicators.showTargetLine;
+      indicators.showTargetLine ||
+      indicators.showBollinger;
 
-  // Returns warmup-before-chart combined with chartData
   List<ChartDataPoint> _buildMaData(
       List<ChartDataPoint> chartData, List<ChartDataPoint> warmup) {
     if (warmup.isEmpty || chartData.isEmpty) return chartData;
@@ -278,7 +338,6 @@ class StockChart extends StatelessWidget {
     return [...before, ...chartData];
   }
 
-  // Calculates MA on combined data, returns spots for visible range only
   List<FlSpot> _calcMA(
       List<ChartDataPoint> combined, int period, int visibleStart) {
     if (combined.length < period) return [];
@@ -313,6 +372,22 @@ class StockChart extends StatelessWidget {
     ];
   }
 
+  ({List<FlSpot> upper, List<FlSpot> lower}) _calcBollinger(
+      List<ChartDataPoint> data, int period, double multiplier) {
+    if (data.length < period) return (upper: [], lower: []);
+    final upper = <FlSpot>[];
+    final lower = <FlSpot>[];
+    for (var i = period - 1; i < data.length; i++) {
+      final window = data.sublist(i - period + 1, i + 1);
+      final mean = window.fold(0.0, (a, p) => a + p.close) / period;
+      final variance = window.fold(0.0, (a, p) => a + (p.close - mean) * (p.close - mean)) / period;
+      final std = math.sqrt(variance);
+      upper.add(FlSpot(i.toDouble(), mean + multiplier * std));
+      lower.add(FlSpot(i.toDouble(), mean - multiplier * std));
+    }
+    return (upper: upper, lower: lower);
+  }
+
   Set<int> _labelPositions(int count, int labelCount) {
     if (count <= 0) return {};
     if (count <= labelCount) {
@@ -343,7 +418,7 @@ class StockChart extends StatelessWidget {
   }
 
   Widget _bottomTitle(int index, List<ChartDataPoint> data, TimeRange range,
-      Set<int> labelIndices, BuildContext context) {
+      Set<int> labelIndices, BuildContext context, TitleMeta meta) {
     if (!labelIndices.contains(index)) return const SizedBox.shrink();
     if (index < 0 || index >= data.length) return const SizedBox.shrink();
 
@@ -352,14 +427,20 @@ class StockChart extends StatelessWidget {
       color: Theme.of(context).colorScheme.onSurface.withAlpha(160),
     );
     final dt = data[index].time;
-    final fmt = range.isIntraday
+    final fmt = range == TimeRange.oneDay
         ? DateFormat('HH:mm')
-        : (range == TimeRange.fiveYears ||
-                range == TimeRange.max ||
-                range == TimeRange.twoYears)
-            ? DateFormat('MM/yy')
-            : DateFormat('dd.MM.');
-    return Text(fmt.format(dt), style: style);
+        : range == TimeRange.oneWeek
+            ? DateFormat('EEE')   // Mo, Di, Mi …
+            : (range == TimeRange.fiveYears ||
+                    range == TimeRange.max ||
+                    range == TimeRange.twoYears)
+                ? DateFormat('MM/yy')
+                : DateFormat('dd.MM.');
+    return SideTitleWidget(
+      meta: meta,
+      space: 4,
+      child: Text(fmt.format(dt), style: style),
+    );
   }
 }
 
@@ -402,6 +483,7 @@ class _IndicatorLegend extends StatelessWidget {
   final bool showMa200;
   final bool showTrend;
   final bool showTarget;
+  final bool showBollinger;
   final double? targetPrice;
 
   const _IndicatorLegend({
@@ -410,12 +492,14 @@ class _IndicatorLegend extends StatelessWidget {
     required this.showMa200,
     required this.showTrend,
     required this.showTarget,
+    required this.showBollinger,
     this.targetPrice,
   });
 
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[];
+    if (showBollinger) items.add(_LegendItem('BB(20,2)', Colors.purple.shade300, dashed: true));
     if (showMa20) items.add(_LegendItem('MA20', Colors.cyan.shade400));
     if (showMa50) items.add(_LegendItem('MA50', Colors.orange.shade400));
     if (showMa200) items.add(_LegendItem('MA200', Colors.purple.shade400));

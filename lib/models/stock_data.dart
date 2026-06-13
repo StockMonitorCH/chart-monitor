@@ -121,6 +121,7 @@ class ChartIndicators {
   final bool showMa200;
   final bool showTrendLine;
   final bool showTargetLine;
+  final bool showBollinger;
   final double? analystTarget;
 
   const ChartIndicators({
@@ -129,6 +130,7 @@ class ChartIndicators {
     this.showMa200 = false,
     this.showTrendLine = false,
     this.showTargetLine = false,
+    this.showBollinger = false,
     this.analystTarget,
   });
 

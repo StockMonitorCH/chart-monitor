@@ -339,4 +339,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noConnection => 'No connection';
+
+  @override
+  String get indicesTitle => 'Indices';
+
+  @override
+  String get indicesCompareHint => 'Load index as comparison';
+
+  @override
+  String get indexCompareTitle => 'Index Comparison';
+
+  @override
+  String get indexCompareShowWatchlist => 'Include Watchlist';
+
+  @override
+  String get indexCompareSelectIndices => 'Select Indices';
+
+  @override
+  String get indexCompareAll => 'All';
+
+  @override
+  String get indexCompareNone => 'None';
+
+  @override
+  String get notesTitle => 'Notes';
+
+  @override
+  String get notesEmpty => 'No notes yet';
+
+  @override
+  String get notesAdd => 'Add note';
+
+  @override
+  String get notesHint => 'Enter note…';
+
+  @override
+  String get notesDelete => 'Delete';
+
+  @override
+  String get notesClearAll => 'Clear all';
+
+  @override
+  String get notesClearAllConfirm => 'Delete all notes?';
 }

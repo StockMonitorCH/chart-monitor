@@ -19,6 +19,7 @@ class ChartState extends ChangeNotifier {
   static const _kMa200 = 'chart_ma200';
   static const _kTrend = 'chart_trend';
   static const _kTarget = 'chart_target';
+  static const _kBollinger = 'chart_bollinger';
 
   TimeRange selectedRange = TimeRange.oneMonth;
 
@@ -51,18 +52,21 @@ class ChartState extends ChangeNotifier {
   bool _showMa200 = false;
   bool _showTrendLine = false;
   bool _showTargetLine = false;
+  bool _showBollinger = false;
 
   bool get showMa20 => _showMa20;
   bool get showMa50 => _showMa50;
   bool get showMa200 => _showMa200;
   bool get showTrendLine => _showTrendLine;
   bool get showTargetLine => _showTargetLine;
+  bool get showBollinger => _showBollinger;
 
   void toggleMa20() { _showMa20 = !_showMa20; notifyListeners(); _savePrefs(); }
   void toggleMa50() { _showMa50 = !_showMa50; notifyListeners(); _savePrefs(); }
   void toggleMa200() { _showMa200 = !_showMa200; notifyListeners(); _savePrefs(); }
   void toggleTrendLine() { _showTrendLine = !_showTrendLine; notifyListeners(); _savePrefs(); }
   void toggleTargetLine() { _showTargetLine = !_showTargetLine; notifyListeners(); _savePrefs(); }
+  void toggleBollinger() { _showBollinger = !_showBollinger; notifyListeners(); _savePrefs(); }
 
   ChartIndicators get indicators => ChartIndicators(
     showMa20: _showMa20,
@@ -70,6 +74,7 @@ class ChartState extends ChangeNotifier {
     showMa200: _showMa200,
     showTrendLine: _showTrendLine,
     showTargetLine: _showTargetLine,
+    showBollinger: _showBollinger,
     analystTarget: analystTargetPrice,
   );
 
@@ -208,6 +213,7 @@ class ChartState extends ChangeNotifier {
     await prefs.setBool(_kMa200, _showMa200);
     await prefs.setBool(_kTrend, _showTrendLine);
     await prefs.setBool(_kTarget, _showTargetLine);
+    await prefs.setBool(_kBollinger, _showBollinger);
   }
 
   Future<void> _restoreFromPrefs() async {
@@ -226,6 +232,7 @@ class ChartState extends ChangeNotifier {
     _showMa200 = prefs.getBool(_kMa200) ?? false;
     _showTrendLine = prefs.getBool(_kTrend) ?? false;
     _showTargetLine = prefs.getBool(_kTarget) ?? false;
+    _showBollinger = prefs.getBool(_kBollinger) ?? false;
     final sym1 = prefs.getString(_kSym1);
     final sym2 = prefs.getString(_kSym2);
     if (sym1 != null) {
@@ -345,6 +352,10 @@ class ChartState extends ChangeNotifier {
       customStart = null;
       customEnd = null;
     }
+    // Auto-disable BB when switching to a range with too little data
+    if (!bbSupportedRange(range)) {
+      _showBollinger = false;
+    }
     notifyListeners();
     final futures = <Future>[];
     if (stock1Info != null) futures.add(loadStock1(stock1Info!.symbol));
@@ -377,12 +388,24 @@ class ChartState extends ChangeNotifier {
     _showMa200 = false;
     _showTrendLine = false;
     _showTargetLine = false;
+    _showBollinger = false;
     notifyListeners();
     _savePrefs();
   }
 
   bool get hasStock1 => stock1Info != null;
   bool get hasStock2 => stock2Info != null;
+
+  static bool bbSupportedRange(TimeRange r) => const {
+        TimeRange.threeMonths,
+        TimeRange.sixMonths,
+        TimeRange.ytd,
+        TimeRange.oneYear,
+        TimeRange.twoYears,
+        TimeRange.fiveYears,
+        TimeRange.max,
+        TimeRange.custom,
+      }.contains(r);
 
   // Combined data length for MA availability check
   int get maDataLength {

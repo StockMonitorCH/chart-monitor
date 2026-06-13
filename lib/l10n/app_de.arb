@@ -111,5 +111,19 @@
   "updateUpToDate": "App ist aktuell (v{version})",
   "@updateUpToDate": {"placeholders": {"version": {"type": "String"}}},
   "privacyConsentBody": "Chart Monitor speichert keine persönlichen Daten. Kursdaten werden live von Yahoo Finance abgerufen.\n\nBitte stimme unserer Datenschutzerklärung zu, um die App zu nutzen.",
-  "noConnection": "Keine Verbindung"
+  "noConnection": "Keine Verbindung",
+  "indicesTitle": "Indizes",
+  "indicesCompareHint": "Index als Vergleich laden",
+  "indexCompareTitle": "Indexvergleich",
+  "indexCompareShowWatchlist": "Watchlist einbeziehen",
+  "indexCompareSelectIndices": "Indizes auswählen",
+  "indexCompareAll": "Alle",
+  "indexCompareNone": "Keine",
+  "notesTitle": "Notizen",
+  "notesEmpty": "Keine Notizen vorhanden",
+  "notesAdd": "Notiz hinzufügen",
+  "notesHint": "Notiz eingeben…",
+  "notesDelete": "Löschen",
+  "notesClearAll": "Alle löschen",
+  "notesClearAllConfirm": "Alle Notizen löschen?"
 }

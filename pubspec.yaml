@@ -2,7 +2,7 @@ name: chart_monitor
 description: "Chart Monitor – Stock chart comparison app"
 publish_to: 'none'
 
-version: 2.0.0+5
+version: 2.1.0+7
 
 # Version schema: MAJOR.MINOR.PATCH+BUILD
 # - pubspec.yaml ist die einzige Quelle für die Versionsnummer
