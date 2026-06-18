@@ -420,14 +420,34 @@ class YahooFinanceService {
       }
 
       int n(String k) => (current?[k] as num?)?.toInt() ?? 0;
+      final sb = n('strongBuy');
+      final b  = n('buy');
+      final h  = n('hold');
+      final s  = n('sell');
+      final ss = n('strongSell');
+
+      // Always derive consensus from weighted mean (1=StarkKaufen…5=StarkVerkaufen)
+      // when counts are available — Yahoo's pre-computed key often disagrees
+      // with its own trend data.
+      String effectiveKey = key.isEmpty ? 'none' : key;
+      final tot = sb + b + h + s + ss;
+      if (tot > 0) {
+        final mean = (1*sb + 2*b + 3*h + 4*s + 5*ss) / tot;
+        if      (mean <= 1.5) effectiveKey = 'strongbuy';
+        else if (mean <= 2.5) effectiveKey = 'buy';
+        else if (mean <= 3.5) effectiveKey = 'hold';
+        else if (mean <= 4.5) effectiveKey = 'sell';
+        else                  effectiveKey = 'strongsell';
+      }
+
       return AnalystData(
-        recommendationKey: key.isEmpty ? 'none' : key,
+        recommendationKey: effectiveKey,
         numberOfAnalysts: numAnalysts,
-        strongBuy:  n('strongBuy'),
-        buy:        n('buy'),
-        hold:       n('hold'),
-        sell:       n('sell'),
-        strongSell: n('strongSell'),
+        strongBuy:  sb,
+        buy:        b,
+        hold:       h,
+        sell:       s,
+        strongSell: ss,
       );
     }
 
