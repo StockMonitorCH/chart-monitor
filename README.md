@@ -12,11 +12,6 @@
   <img src="screenshots/05_stock_details.jpg" width="200" alt="Stock details"/>
   <img src="screenshots/06_etf_details.jpg" width="200" alt="ETF details"/>
 </p>
-<p align="center">
-  <img src="screenshots/ETFEN.jpg" width="200" alt="ETF EN"/>
-  <img src="screenshots/InfoEN.jpg" width="200" alt="Info EN"/>
-</p>
-
 ---
 
 ## Features
