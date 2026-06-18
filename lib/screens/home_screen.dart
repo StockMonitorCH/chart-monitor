@@ -613,6 +613,37 @@ class _TimeRangeBar extends StatelessWidget {
               ),
             ),
           ),
+          // Extended hours toggle (1D only, single stock)
+          if (state.canUseExtendedHours)
+            Padding(
+              padding: const EdgeInsets.only(right: 2),
+              child: Tooltip(
+                message: l10n.extendedHoursLabel,
+                child: GestureDetector(
+                  onTap: () => context.read<ChartState>().toggleExtendedHours(),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: state.showExtendedHours
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'EH',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: state.showExtendedHours
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurface.withAlpha(160),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           // Candlestick toggle
           if (canCandle || state.candlestick)
             Padding(
@@ -791,26 +822,20 @@ class _MoreButton extends StatelessWidget {
 
   Future<void> _pickCustomRange(BuildContext context) async {
     final now = DateTime.now();
+    final initStart = state.customStart ?? now.subtract(const Duration(days: 90));
+    final initEnd   = state.customEnd   ?? now;
     final picked = await showDateRangePicker(
       context: context,
+      initialDateRange: DateTimeRange(start: initStart, end: initEnd),
       firstDate: DateTime(2000),
       lastDate: now,
-      initialDateRange: DateTimeRange(
-        start: state.customStart ?? now.subtract(const Duration(days: 90)),
-        end: state.customEnd ?? now,
-      ),
-      helpText: l10n.customRangeTitle,
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx),
-        child: child!,
-      ),
     );
     if (picked != null && context.mounted) {
       context.read<ChartState>().changeRange(
-            TimeRange.custom,
-            start: picked.start,
-            end: picked.end,
-          );
+        TimeRange.custom,
+        start: picked.start,
+        end:   picked.end,
+      );
     }
   }
 }
@@ -1137,3 +1162,4 @@ class _ChartArea extends StatelessWidget {
     );
   }
 }
+

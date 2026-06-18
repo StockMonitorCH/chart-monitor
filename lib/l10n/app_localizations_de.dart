@@ -48,6 +48,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get timeRangeMax => 'Max';
 
   @override
+  String get extendedHoursLabel => 'Erweiterte Handelszeiten (Vor-/Nachbörse)';
+
+  @override
   String get noDataFound => 'Keine Daten gefunden';
 
   @override
@@ -135,6 +138,9 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get analystTitle => 'Analysten';
+
+  @override
   String get detailsTitle => 'Firmeninfos';
 
   @override
@@ -212,6 +218,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get customRangeTo => 'Bis';
 
   @override
+  String get customRangeApply => 'Übernehmen';
+
+  @override
+  String get customRangeDateInvalid => 'Ungültiges Datum oder Zeitraum';
+
+  @override
   String get noData => 'Keine Daten verfügbar';
 
   @override
@@ -237,6 +249,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get fxSavingsTab => 'Zins';
+
+  @override
+  String get fxFinanceTab => 'Finanz';
 
   @override
   String get watchlistTitle => 'Watchlist';

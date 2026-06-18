@@ -83,3 +83,25 @@ class DividendEntry {
 
   const DividendEntry({required this.date, required this.amount});
 }
+
+class AnalystData {
+  final String recommendationKey; // strongBuy | buy | hold | sell | strongSell | none
+  final int numberOfAnalysts;
+  final int strongBuy;
+  final int buy;
+  final int hold;
+  final int sell;
+  final int strongSell;
+
+  const AnalystData({
+    required this.recommendationKey,
+    required this.numberOfAnalysts,
+    required this.strongBuy,
+    required this.buy,
+    required this.hold,
+    required this.sell,
+    required this.strongSell,
+  });
+
+  int get total => strongBuy + buy + hold + sell + strongSell;
+}

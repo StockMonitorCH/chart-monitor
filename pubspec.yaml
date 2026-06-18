@@ -2,7 +2,7 @@ name: chart_monitor
 description: "Chart Monitor – Stock chart comparison app"
 publish_to: 'none'
 
-version: 2.1.0+7
+version: 2.2.0+8
 
 # Version schema: MAJOR.MINOR.PATCH+BUILD
 # - pubspec.yaml ist die einzige Quelle für die Versionsnummer
@@ -28,6 +28,7 @@ dependencies:
   workmanager: ^0.9.0
   flutter_local_notifications: ^18.0.1
   package_info_plus: ^8.0.2
+  math_expressions: ^2.6.0
 
 dev_dependencies:
   flutter_test:

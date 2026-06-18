@@ -217,6 +217,17 @@ class StockChart extends StatelessWidget {
         ),
     ];
 
+    // Compute extended-hours zone boundaries for range annotations
+    int? regFirstIdx, regLastIdx;
+    for (var i = 0; i < data1.length; i++) {
+      if (!data1[i].isExtendedHours) {
+        regFirstIdx ??= i;
+        regLastIdx = i;
+      }
+    }
+    final hasExtZones = regFirstIdx != null && regLastIdx != null &&
+        (regFirstIdx > 0 || regLastIdx < data1.length - 1);
+
     // Fewer labels for intraday (narrow time slots)
     final labelCount = range.isIntraday ? 3 : 4;
     final labelIndices = _labelPositions(data1.length, labelCount);
@@ -281,6 +292,24 @@ class StockChart extends StatelessWidget {
                 ),
               ),
               borderData: FlBorderData(show: false),
+              rangeAnnotations: hasExtZones
+                  ? RangeAnnotations(
+                      verticalRangeAnnotations: [
+                        if (regFirstIdx > 0)
+                          VerticalRangeAnnotation(
+                            x1: 0,
+                            x2: regFirstIdx.toDouble() - 0.5,
+                            color: Colors.white.withAlpha(12),
+                          ),
+                        if (regLastIdx < data1.length - 1)
+                          VerticalRangeAnnotation(
+                            x1: regLastIdx.toDouble() + 0.5,
+                            x2: (data1.length - 1).toDouble(),
+                            color: Colors.white.withAlpha(12),
+                          ),
+                      ],
+                    )
+                  : null,
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
                   getTooltipColor: (_) =>
@@ -427,13 +456,17 @@ class StockChart extends StatelessWidget {
       color: Theme.of(context).colorScheme.onSurface.withAlpha(160),
     );
     final dt = data[index].time;
+    final isLongCustom = range == TimeRange.custom &&
+        data.length > 1 &&
+        data.last.time.difference(data.first.time).inDays > 400;
     final fmt = range == TimeRange.oneDay
         ? DateFormat('HH:mm')
         : range == TimeRange.oneWeek
             ? DateFormat('EEE')   // Mo, Di, Mi …
             : (range == TimeRange.fiveYears ||
                     range == TimeRange.max ||
-                    range == TimeRange.twoYears)
+                    range == TimeRange.twoYears ||
+                    isLongCustom)
                 ? DateFormat('MM/yy')
                 : DateFormat('dd.MM.');
     return SideTitleWidget(

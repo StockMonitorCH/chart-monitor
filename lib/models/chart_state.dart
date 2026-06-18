@@ -20,6 +20,9 @@ class ChartState extends ChangeNotifier {
   static const _kTrend = 'chart_trend';
   static const _kTarget = 'chart_target';
   static const _kBollinger = 'chart_bollinger';
+  static const _kExtHours = 'chart_ext_hours';
+  static const _kCustomStart = 'chart_custom_start';
+  static const _kCustomEnd = 'chart_custom_end';
 
   TimeRange selectedRange = TimeRange.oneMonth;
 
@@ -53,6 +56,7 @@ class ChartState extends ChangeNotifier {
   bool _showTrendLine = false;
   bool _showTargetLine = false;
   bool _showBollinger = false;
+  bool _showExtendedHours = false;
 
   bool get showMa20 => _showMa20;
   bool get showMa50 => _showMa50;
@@ -60,6 +64,11 @@ class ChartState extends ChangeNotifier {
   bool get showTrendLine => _showTrendLine;
   bool get showTargetLine => _showTargetLine;
   bool get showBollinger => _showBollinger;
+  bool get showExtendedHours => _showExtendedHours;
+
+  // Extended hours only makes sense for 1D single-stock view
+  bool get canUseExtendedHours =>
+      stock2Info == null && selectedRange == TimeRange.oneDay;
 
   void toggleMa20() { _showMa20 = !_showMa20; notifyListeners(); _savePrefs(); }
   void toggleMa50() { _showMa50 = !_showMa50; notifyListeners(); _savePrefs(); }
@@ -67,6 +76,12 @@ class ChartState extends ChangeNotifier {
   void toggleTrendLine() { _showTrendLine = !_showTrendLine; notifyListeners(); _savePrefs(); }
   void toggleTargetLine() { _showTargetLine = !_showTargetLine; notifyListeners(); _savePrefs(); }
   void toggleBollinger() { _showBollinger = !_showBollinger; notifyListeners(); _savePrefs(); }
+  void toggleExtendedHours() {
+    _showExtendedHours = !_showExtendedHours;
+    notifyListeners();
+    _savePrefs();
+    if (stock1Info != null) loadStock1(stock1Info!.symbol);
+  }
 
   ChartIndicators get indicators => ChartIndicators(
     showMa20: _showMa20,
@@ -214,6 +229,17 @@ class ChartState extends ChangeNotifier {
     await prefs.setBool(_kTrend, _showTrendLine);
     await prefs.setBool(_kTarget, _showTargetLine);
     await prefs.setBool(_kBollinger, _showBollinger);
+    await prefs.setBool(_kExtHours, _showExtendedHours);
+    if (customStart != null) {
+      await prefs.setInt(_kCustomStart, customStart!.millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(_kCustomStart);
+    }
+    if (customEnd != null) {
+      await prefs.setInt(_kCustomEnd, customEnd!.millisecondsSinceEpoch);
+    } else {
+      await prefs.remove(_kCustomEnd);
+    }
   }
 
   Future<void> _restoreFromPrefs() async {
@@ -233,6 +259,13 @@ class ChartState extends ChangeNotifier {
     _showTrendLine = prefs.getBool(_kTrend) ?? false;
     _showTargetLine = prefs.getBool(_kTarget) ?? false;
     _showBollinger = prefs.getBool(_kBollinger) ?? false;
+    _showExtendedHours = prefs.getBool(_kExtHours) ?? false;
+    final csMs = prefs.getInt(_kCustomStart);
+    final ceMs = prefs.getInt(_kCustomEnd);
+    if (csMs != null && ceMs != null) {
+      customStart = DateTime.fromMillisecondsSinceEpoch(csMs);
+      customEnd   = DateTime.fromMillisecondsSinceEpoch(ceMs);
+    }
     final sym1 = prefs.getString(_kSym1);
     final sym2 = prefs.getString(_kSym2);
     if (sym1 != null) {
@@ -270,6 +303,7 @@ class ChartState extends ChangeNotifier {
       stock1Data = await _service.fetchChartData(
         symbol, selectedRange,
         customStart: customStart, customEnd: customEnd,
+        includePrePost: canUseExtendedHours && _showExtendedHours,
       );
       _calcPeriodPerformance();
       analystTargetPrice = null;
@@ -357,6 +391,7 @@ class ChartState extends ChangeNotifier {
       _showBollinger = false;
     }
     notifyListeners();
+    await _savePrefs();
     final futures = <Future>[];
     if (stock1Info != null) futures.add(loadStock1(stock1Info!.symbol));
     if (stock2Info != null) futures.add(loadStock2(stock2Info!.symbol));

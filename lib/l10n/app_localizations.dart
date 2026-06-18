@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Max'**
   String get timeRangeMax;
 
+  /// No description provided for @extendedHoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Extended Hours (Pre/Post Market)'**
+  String get extendedHoursLabel;
+
   /// No description provided for @noDataFound.
   ///
   /// In en, this message translates to:
@@ -332,6 +338,12 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String version(String version);
 
+  /// No description provided for @analystTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysts'**
+  String get analystTitle;
+
   /// No description provided for @detailsTitle.
   ///
   /// In en, this message translates to:
@@ -482,6 +494,18 @@ abstract class AppLocalizations {
   /// **'To'**
   String get customRangeTo;
 
+  /// No description provided for @customRangeApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get customRangeApply;
+
+  /// No description provided for @customRangeDateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid date or range'**
+  String get customRangeDateInvalid;
+
   /// No description provided for @noData.
   ///
   /// In en, this message translates to:
@@ -535,6 +559,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Interest'**
   String get fxSavingsTab;
+
+  /// No description provided for @fxFinanceTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Finance'**
+  String get fxFinanceTab;
 
   /// No description provided for @watchlistTitle.
   ///

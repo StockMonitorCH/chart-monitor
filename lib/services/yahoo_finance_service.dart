@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../models/stock_data.dart';
 import '../models/company_info.dart';
 import '../models/news_item.dart';
+import '../models/stock_data.dart';
 
 class YahooFinanceService {
   static const _ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
@@ -163,6 +163,7 @@ class YahooFinanceService {
     DateTime? customStart,
     DateTime? customEnd,
     String? forceInterval,
+    bool includePrePost = false,
   }) async {
     final Map<String, String> params;
     if (range == TimeRange.custom && customStart != null && customEnd != null) {
@@ -179,7 +180,7 @@ class YahooFinanceService {
       params = {
         'range': range.range,
         'interval': forceInterval ?? range.interval,
-        'includePrePost': 'false',
+        'includePrePost': includePrePost ? 'true' : 'false',
       };
     }
     final response = await _chartGet(symbol, params);
@@ -208,15 +209,40 @@ class YahooFinanceService {
       throw Exception('Malformed data');
     }
 
+    // Determine regular-session boundaries from tradingPeriods for extended hours marking
+    DateTime? regularStart, regularEnd;
+    if (includePrePost) {
+      final tp = (result[0]['meta'] as Map<String, dynamic>?)?['tradingPeriods']
+          ?? result[0]['tradingPeriods'];
+      if (tp is Map) {
+        final reg = (tp['regular'] as List?)?.firstOrNull;
+        final regPeriod = (reg is List) ? reg.firstOrNull : reg;
+        if (regPeriod is Map) {
+          final s = regPeriod['start'];
+          final e = regPeriod['end'];
+          if (s is int && e is int) {
+            regularStart = DateTime.fromMillisecondsSinceEpoch(s * 1000);
+            regularEnd   = DateTime.fromMillisecondsSinceEpoch(e * 1000);
+          }
+        }
+      }
+    }
+
     final points = <ChartDataPoint>[];
     for (var i = 0; i < timestamps.length; i++) {
       if (!closes[i].isNaN) {
+        final isExt = includePrePost &&
+            regularStart != null &&
+            regularEnd != null &&
+            (timestamps[i].isBefore(regularStart) ||
+                timestamps[i].isAfter(regularEnd));
         points.add(ChartDataPoint(
           time: timestamps[i],
           close: closes[i],
           open:  (i < opens.length  && !opens[i].isNaN)  ? opens[i]  : null,
           high:  (i < highs.length  && !highs[i].isNaN)  ? highs[i]  : null,
           low:   (i < lows.length   && !lows[i].isNaN)   ? lows[i]   : null,
+          isExtendedHours: isExt,
         ));
       }
     }
@@ -362,6 +388,70 @@ class YahooFinanceService {
       final crumb = _crumb != null ? '&crumb=${Uri.encodeComponent(_crumb!)}' : '';
       result = await tryUrl('$base1$symbol$mod$crumb', _headers);
       return result;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<AnalystData?> fetchAnalystRatings(String symbol) async {
+    AnalystData? parse(dynamic body) {
+      final result = body['quoteSummary']?['result'] as List?;
+      if (result == null || result.isEmpty) return null;
+      final modules = result[0] as Map<String, dynamic>;
+
+      final fd = modules['financialData'] as Map<String, dynamic>?;
+      final key = (fd?['recommendationKey'] as String? ?? '').toLowerCase();
+      int numAnalysts = 0;
+      final nOp = fd?['numberOfAnalystOpinions'];
+      if (nOp is Map) numAnalysts = (nOp['raw'] as num?)?.toInt() ?? 0;
+      if (nOp is num) numAnalysts = nOp.toInt();
+
+      final rt = modules['recommendationTrend'] as Map<String, dynamic>?;
+      final trends = rt?['trend'] as List?;
+      Map<String, dynamic>? current;
+      if (trends != null) {
+        for (final t in trends) {
+          if ((t as Map<String, dynamic>)['period'] == '0m') {
+            current = t;
+            break;
+          }
+        }
+        current ??= trends.isNotEmpty ? trends[0] as Map<String, dynamic> : null;
+      }
+
+      int n(String k) => (current?[k] as num?)?.toInt() ?? 0;
+      return AnalystData(
+        recommendationKey: key.isEmpty ? 'none' : key,
+        numberOfAnalysts: numAnalysts,
+        strongBuy:  n('strongBuy'),
+        buy:        n('buy'),
+        hold:       n('hold'),
+        sell:       n('sell'),
+        strongSell: n('strongSell'),
+      );
+    }
+
+    Future<AnalystData?> tryUrl(String url, Map<String, String> headers) async {
+      try {
+        final resp = await http.get(Uri.parse(url), headers: headers)
+            .timeout(const Duration(seconds: 10));
+        if (resp.statusCode != 200) return null;
+        return parse(jsonDecode(resp.body));
+      } catch (_) { return null; }
+    }
+
+    try {
+      const base1 = 'https://query1.finance.yahoo.com/v10/finance/quoteSummary/';
+      const base2 = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/';
+      const mod = '?modules=recommendationTrend,financialData';
+
+      var result = await tryUrl('$base1$symbol$mod', _baseHeaders);
+      result ??= await tryUrl('$base2$symbol$mod', _baseHeaders);
+      if (result != null) return result;
+
+      await _ensureSession();
+      final crumb = _crumb != null ? '&crumb=${Uri.encodeComponent(_crumb!)}' : '';
+      return await tryUrl('$base1$symbol$mod$crumb', _headers);
     } catch (_) {
       return null;
     }

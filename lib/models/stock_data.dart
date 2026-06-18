@@ -27,6 +27,7 @@ class ChartDataPoint {
   final double? open;
   final double? high;
   final double? low;
+  final bool isExtendedHours;
 
   const ChartDataPoint({
     required this.time,
@@ -34,6 +35,7 @@ class ChartDataPoint {
     this.open,
     this.high,
     this.low,
+    this.isExtendedHours = false,
   });
 
   bool get hasOhlc => open != null && high != null && low != null;

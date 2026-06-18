@@ -150,7 +150,7 @@ class _StockDetailsSheetState extends State<StockDetailsSheet> {
           ],
         ] else ...[
           // ── Aktie: Unternehmensinfo ────────────────────────────────────────
-          _SectionTitle(l10n.detailsCompanyInfo, url: info.website),
+          _SectionTitle(l10n.detailsCompanyInfo, url: info.website, analystSymbol: info.symbol),
           _InfoGrid(
             noDataLabel: l10n.noData,
             cells: [
@@ -304,7 +304,9 @@ class _Handle extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String title;
   final String? url;
-  const _SectionTitle(this.title, {this.url});
+  final String? analystSymbol; // non-null → show analyst button
+
+  const _SectionTitle(this.title, {this.url, this.analystSymbol});
 
   String _displayUrl(String raw) {
     var s = raw;
@@ -318,6 +320,7 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final style = TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: cs.primary);
     return Padding(
       padding: const EdgeInsets.only(top: 16, bottom: 6),
@@ -325,34 +328,72 @@ class _SectionTitle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: style),
-          if (url != null) ...[
+          if (url != null || analystSymbol != null) ...[
             const SizedBox(height: 4),
-            InkWell(
-              onTap: () => launchUrl(Uri.parse(url!), mode: LaunchMode.externalApplication),
-              borderRadius: BorderRadius.circular(4),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.language, size: 14, color: cs.primary.withAlpha(200)),
-                    const SizedBox(width: 5),
-                    Text(
-                      _displayUrl(url!),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: cs.primary,
-                        decoration: TextDecoration.underline,
-                        decorationColor: cs.primary.withAlpha(150),
+            Row(
+              children: [
+                if (url != null)
+                  InkWell(
+                    onTap: () => launchUrl(Uri.parse(url!), mode: LaunchMode.externalApplication),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.language, size: 14, color: cs.primary.withAlpha(200)),
+                          const SizedBox(width: 5),
+                          Text(
+                            _displayUrl(url!),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cs.primary,
+                              decoration: TextDecoration.underline,
+                              decorationColor: cs.primary.withAlpha(150),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                if (url != null && analystSymbol != null) const SizedBox(width: 12),
+                if (analystSymbol != null)
+                  InkWell(
+                    onTap: () => _showAnalystSheet(context, analystSymbol!, l10n),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.analytics_outlined, size: 14, color: cs.secondary.withAlpha(200)),
+                          const SizedBox(width: 5),
+                          Text(
+                            l10n.analystTitle,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cs.secondary,
+                              decoration: TextDecoration.underline,
+                              decorationColor: cs.secondary.withAlpha(150),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ],
         ],
       ),
+    );
+  }
+
+  void _showAnalystSheet(BuildContext context, String symbol, AppLocalizations l10n) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _AnalystSheet(symbol: symbol, l10n: l10n),
     );
   }
 }
@@ -784,6 +825,199 @@ class _SectorWeightRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Analyst sheet ─────────────────────────────────────────────────────────────
+
+class _AnalystSheet extends StatefulWidget {
+  final String symbol;
+  final AppLocalizations l10n;
+  const _AnalystSheet({required this.symbol, required this.l10n});
+
+  @override
+  State<_AnalystSheet> createState() => _AnalystSheetState();
+}
+
+class _AnalystSheetState extends State<_AnalystSheet> {
+  final _service = YahooFinanceService();
+  AnalystData? _data;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final d = await _service.fetchAnalystRatings(widget.symbol);
+    if (mounted) setState(() { _data = d; _loading = false; });
+  }
+
+  static const _keyColors = {
+    'strongbuy':  Color(0xFF1B7F2F),
+    'buy':        Color(0xFF4CAF50),
+    'hold':       Color(0xFFFFC107),
+    'sell':       Color(0xFFFF7043),
+    'strongsell': Color(0xFFD32F2F),
+  };
+
+  Color _recColor(String key) => _keyColors[key.toLowerCase()] ?? Colors.grey;
+
+  String _recLabel(String key, bool de) {
+    switch (key.toLowerCase()) {
+      case 'strongbuy':  return de ? 'Stark kaufen'      : 'Strong buy';
+      case 'buy':        return de ? 'Kaufen'            : 'Buy';
+      case 'hold':       return de ? 'Halten'            : 'Hold';
+      case 'sell':       return de ? 'Verkaufen'         : 'Sell';
+      case 'strongsell': return de ? 'Stark verkaufen'   : 'Strong sell';
+      default:           return de ? 'Keine Empfehlung'  : 'No rating';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = widget.l10n;
+    final de = Localizations.localeOf(context).languageCode == 'de';
+    final cs = Theme.of(context).colorScheme;
+    final bottomPad = MediaQuery.of(context).padding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 12, 16, 24 + bottomPad),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40, height: 4,
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: cs.onSurface.withAlpha(60),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Text(l10n.analystTitle,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(width: 8),
+              Text(widget.symbol,
+                  style: TextStyle(fontSize: 13, color: cs.onSurface.withAlpha(140))),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_loading)
+            const Center(child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: CircularProgressIndicator(),
+            ))
+          else if (_data == null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(l10n.noData,
+                  style: TextStyle(color: cs.onSurface.withAlpha(120))),
+            )
+          else
+            _buildContent(_data!, de, cs),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(AnalystData d, bool de, ColorScheme cs) {
+    final l10n = widget.l10n;
+    final total = d.total > 0 ? d.total : 1;
+
+    Widget bar(String key, int count) {
+      final color = _keyColors[key] ?? Colors.grey;
+      return Expanded(
+        flex: count,
+        child: Container(
+          height: 22,
+          color: color,
+          alignment: Alignment.center,
+          child: Text('$count',
+              style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
+      );
+    }
+
+    Widget row(String key, int count) {
+      final color = _keyColors[key] ?? Colors.grey;
+      final pct = (count / total * 100).toStringAsFixed(0);
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Row(
+          children: [
+            Container(width: 12, height: 12, color: color, margin: const EdgeInsets.only(right: 8)),
+            Expanded(child: Text(_recLabel(key, de), style: const TextStyle(fontSize: 13))),
+            Text('$count', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            SizedBox(
+              width: 42,
+              child: Text('  $pct%',
+                  style: TextStyle(fontSize: 11, color: cs.onSurface.withAlpha(140))),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _recColor(d.recommendationKey).withAlpha(40),
+            border: Border.all(color: _recColor(d.recommendationKey)),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            _recLabel(d.recommendationKey, de),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: _recColor(d.recommendationKey),
+            ),
+          ),
+        ),
+        if (d.numberOfAnalysts > 0) ...[
+          const SizedBox(height: 4),
+          Text(
+            de ? '${d.numberOfAnalysts} Analysten' : '${d.numberOfAnalysts} analysts',
+            style: TextStyle(fontSize: 12, color: cs.onSurface.withAlpha(140)),
+          ),
+        ],
+        const SizedBox(height: 16),
+        if (d.total > 0) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SizedBox(
+              height: 22,
+              child: Row(
+                children: [
+                  if (d.strongBuy  > 0) bar('strongbuy',  d.strongBuy),
+                  if (d.buy        > 0) bar('buy',        d.buy),
+                  if (d.hold       > 0) bar('hold',       d.hold),
+                  if (d.sell       > 0) bar('sell',       d.sell),
+                  if (d.strongSell > 0) bar('strongsell', d.strongSell),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          row('strongbuy',  d.strongBuy),
+          row('buy',        d.buy),
+          row('hold',       d.hold),
+          row('sell',       d.sell),
+          row('strongsell', d.strongSell),
+        ] else
+          Text(l10n.noData, style: TextStyle(color: cs.onSurface.withAlpha(120))),
+      ],
     );
   }
 }
