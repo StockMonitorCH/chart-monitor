@@ -442,7 +442,7 @@ class YahooFinanceService {
 
       return AnalystData(
         recommendationKey: effectiveKey,
-        numberOfAnalysts: numAnalysts,
+        numberOfAnalysts: tot > 0 ? tot : numAnalysts,
         strongBuy:  sb,
         buy:        b,
         hold:       h,
