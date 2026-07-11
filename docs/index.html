@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chart Monitor – Stock Chart App für Android</title>
+  <meta name="description" content="Chart Monitor – Kostenlose Aktien-Chart-App für Android. Kurscharts, technische Indikatoren, Watchlist, Kursalarme.">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #121212;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 16px;
+      padding: 40px 36px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 28px;
+    }
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #4caf50;
+      color: #fff;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+      padding: 16px 32px;
+      border-radius: 50px;
+      transition: background 0.2s;
+      margin-bottom: 12px;
+    }
+    .download-btn:hover { background: #43a047; }
+    .install-hint {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 32px;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #2a2a2a;
+      margin: 28px 0;
+    }
+    .features {
+      text-align: left;
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.8;
+    }
+    .features strong {
+      color: #ccc;
+    }
+    .footer {
+      margin-top: 32px;
+      font-size: 11px;
+      color: #555;
+    }
+    .footer a { color: #555; }
+    .lang-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .lang-btn {
+      background: none;
+      border: 1px solid #444;
+      color: #888;
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .lang-btn.active {
+      border-color: #4caf50;
+      color: #4caf50;
+    }
+    .content { display: none; }
+    .content.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📈</div>
+
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('de')">🇩🇪 DE</button>
+      <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+
+    <!-- GERMAN -->
+    <div class="content active" id="de">
+      <h1>Chart Monitor</h1>
+      <p class="subtitle">Kostenlose Aktien-Chart-App für Android</p>
+
+      <a class="download-btn" href="https://github.com/StockMonitorCH/chart-monitor/releases/latest/download/chart-monitor-android.apk">
+        ⬇ APK herunterladen
+      </a>
+      <p class="install-hint">APK öffnen → Installieren. Funktioniert auch als Update über eine bestehende Version.</p>
+
+      <hr class="divider">
+
+      <div class="features">
+        <strong>Funktionen</strong><br>
+        📊 Linien- &amp; Candlestick-Charts<br>
+        🔀 Zwei-Aktien-Vergleich (%-normiert)<br>
+        📅 1T bis Max + eigener Zeitraum<br>
+        📉 MA20/38/50/200, Trend, Zielkurs, Bollinger-Bänder, RSI<br>
+        ⭐ Aktien-Analyse mit 5-Sterne-Bewertung<br>
+        🔔 Watchlist mit Kursalarmen<br>
+        🏢 Firmeninfos, Dividenden, Nachrichten<br>
+        💱 FX-Rechner (Währung &amp; Zins)<br>
+        🌐 Deutsch &amp; Englisch
+      </div>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="content" id="en">
+      <h1>Chart Monitor</h1>
+      <p class="subtitle">Free stock chart app for Android</p>
+
+      <a class="download-btn" href="https://github.com/StockMonitorCH/chart-monitor/releases/latest/download/chart-monitor-android.apk">
+        ⬇ Download APK
+      </a>
+      <p class="install-hint">Open APK → Install. Also works as an update over an existing installation.</p>
+
+      <hr class="divider">
+
+      <div class="features">
+        <strong>Features</strong><br>
+        📊 Line &amp; candlestick charts<br>
+        🔀 Two-stock comparison (%-normalized)<br>
+        📅 1D to Max + custom date range<br>
+        📉 MA20/38/50/200, Trend, Target, Bollinger Bands, RSI<br>
+        ⭐ Stock analysis with 5-star rating<br>
+        🔔 Watchlist with price alerts<br>
+        🏢 Company info, dividends, news<br>
+        💱 FX calculator (currency &amp; interest)<br>
+        🌐 German &amp; English
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="https://github.com/StockMonitorCH/chart-monitor/releases">Alle Versionen / All releases</a>
+      &nbsp;·&nbsp;
+      <a href="privacy.html">Datenschutz / Privacy</a>
+    </div>
+  </div>
+
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(lang).classList.add('active');
+      document.querySelector('[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
+    }
+    // Auto-detect browser language
+    const browserLang = navigator.language.startsWith('de') ? 'de' : 'en';
+    setLang(browserLang);
+  </script>
+</body>
+</html>
