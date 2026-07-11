@@ -130,5 +130,18 @@
   "notesHint": "Notiz eingeben…",
   "notesDelete": "Löschen",
   "notesClearAll": "Alle löschen",
-  "notesClearAllConfirm": "Alle Notizen löschen?"
+  "notesClearAllConfirm": "Alle Notizen löschen?",
+  "ratingTitle": "Aktien-Analyse",
+  "ratingOverall": "Gesamtrating",
+  "ratingPerformance": "Performance",
+  "ratingRisk": "Risiko",
+  "ratingFundamental": "Fundamental",
+  "ratingTechnical": "Technisch",
+  "ratingTradability": "Zum Traden geeignet",
+  "ratingAnalyst": "Analystenempfehlung",
+  "ratingLoading": "Analyse wird berechnet…",
+  "ratingError": "Analyse nicht verfügbar",
+  "ratingInfoTitle": "Wie funktioniert die Bewertung?",
+  "ratingInfoBody": "Die Bewertung basiert auf technischen und fundamentalen Indikatoren des letzten Jahres (Tagesdaten) und wird automatisch berechnet.\n\n⭐ Performance\nKursentwicklung über 1 Jahr. Bonus, wenn der Kurs über MA50 und MA200 liegt.\n\n⭐ Risiko\nAnnualisierte Volatilität (Standardabweichung der Tagesrenditen × √252) und Beta-Koeffizient. Niedrige Werte = mehr Sterne.\n\n⭐ Fundamental\nAnalysten-Kursziel vs. aktueller Kurs (Upside/Downside). Bonus für attraktive Dividendenrendite.\n\n⭐ Technisch\nSignale aus MA20, MA38, MA50, MA200, RSI-14, Bollinger-Bänder (20T, 2σ) und Trendlinie (lineare Regression).\n\n⭐ Zum Traden geeignet\nSharpe Ratio (risikobereinigte Rendite), Alpha vs. S&P 500 und Trendkonsistenz (R²).\n\n⭐ Analystenempfehlung\nKonsens der Analystenbewertungen (Kaufen / Halten / Verkaufen) gewichtet nach Kursziel-Upside.\n\n⭐ Gesamtrating\nGewichteter Durchschnitt: Technisch 25 %, Performance 20 %, Risiko 15 %, Fundamental 15 %, Analysten 15 %, Traden 10 %.\n\nHalbe Sterne sind möglich (0,5–5,0).",
+  "ratingDisclaimer": "Keine Anlageempfehlung. Zeitraum: 1 Jahr (Tagesdaten)."
 }

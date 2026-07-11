@@ -748,6 +748,52 @@ class YahooFinanceService {
     }
   }
 
+  /// Fetches beta and dividend yield for stock rating computation.
+  Future<({double? beta, double? dividendYield})> fetchRatingMetrics(
+      String symbol) async {
+    double? beta;
+    double? dividendYield;
+
+    Future<bool> tryParse(String url, Map<String, String> hdrs) async {
+      try {
+        final resp = await http
+            .get(Uri.parse(url), headers: hdrs)
+            .timeout(const Duration(seconds: 10));
+        if (resp.statusCode != 200) return false;
+        final j = jsonDecode(resp.body) as Map<String, dynamic>;
+        final result = j['quoteSummary']?['result'] as List?;
+        if (result == null || result.isEmpty) return false;
+        final m = result[0] as Map<String, dynamic>;
+
+        double? yRaw(dynamic map, String key) {
+          final v = (map as Map<String, dynamic>?)?[key];
+          if (v is Map) return (v['raw'] as num?)?.toDouble();
+          if (v is num) return v.toDouble();
+          return null;
+        }
+
+        beta = yRaw(m['defaultKeyStatistics'], 'beta');
+        dividendYield = yRaw(m['summaryDetail'], 'dividendYield');
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    const mod = '?modules=defaultKeyStatistics,summaryDetail';
+    const base1 = 'https://query1.finance.yahoo.com/v10/finance/quoteSummary/';
+    const base2 = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/';
+    var ok = await tryParse('$base1$symbol$mod', _baseHeaders);
+    if (!ok) ok = await tryParse('$base2$symbol$mod', _baseHeaders);
+    if (!ok) {
+      await _ensureSession();
+      final crumb =
+          _crumb != null ? '&crumb=${Uri.encodeComponent(_crumb!)}' : '';
+      await tryParse('$base1$symbol$mod$crumb', _headers);
+    }
+    return (beta: beta, dividendYield: dividendYield);
+  }
+
   Future<List<NewsItem>> fetchNews(String symbol) async {
     try {
       final uri = Uri.parse(

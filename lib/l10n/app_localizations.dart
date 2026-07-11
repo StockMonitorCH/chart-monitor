@@ -835,6 +835,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete all notes?'**
   String get notesClearAllConfirm;
+
+  /// No description provided for @ratingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Analysis'**
+  String get ratingTitle;
+
+  /// No description provided for @ratingOverall.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Rating'**
+  String get ratingOverall;
+
+  /// No description provided for @ratingPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get ratingPerformance;
+
+  /// No description provided for @ratingRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk'**
+  String get ratingRisk;
+
+  /// No description provided for @ratingFundamental.
+  ///
+  /// In en, this message translates to:
+  /// **'Fundamental'**
+  String get ratingFundamental;
+
+  /// No description provided for @ratingTechnical.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical'**
+  String get ratingTechnical;
+
+  /// No description provided for @ratingTradability.
+  ///
+  /// In en, this message translates to:
+  /// **'Tradability'**
+  String get ratingTradability;
+
+  /// No description provided for @ratingAnalyst.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyst Rating'**
+  String get ratingAnalyst;
+
+  /// No description provided for @ratingLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating analysis…'**
+  String get ratingLoading;
+
+  /// No description provided for @ratingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis unavailable'**
+  String get ratingError;
+
+  /// No description provided for @ratingInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How does the rating work?'**
+  String get ratingInfoTitle;
+
+  /// No description provided for @ratingInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The rating is based on technical and fundamental indicators over the past year (daily data) and is calculated automatically.\n\n⭐ Performance\nPrice development over 1 year. Bonus if price is above MA50 and MA200.\n\n⭐ Risk\nAnnualized volatility (std dev of daily returns × √252) and beta coefficient. Lower values = more stars.\n\n⭐ Fundamental\nAnalyst price target vs. current price (upside/downside). Bonus for attractive dividend yield.\n\n⭐ Technical\nSignals from MA20, MA38, MA50, MA200, RSI-14, Bollinger Bands (20d, 2σ), and trendline (linear regression).\n\n⭐ Tradability\nSharpe ratio (risk-adjusted return), Alpha vs. S&P 500, and trend consistency (R²).\n\n⭐ Analyst Rating\nConsensus of analyst recommendations (Buy / Hold / Sell) weighted by price target upside.\n\n⭐ Overall Rating\nWeighted average: Technical 25%, Performance 20%, Risk 15%, Fundamental 15%, Analysts 15%, Tradability 10%.\n\nHalf stars are possible (0.5–5.0).'**
+  String get ratingInfoBody;
+
+  /// No description provided for @ratingDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not investment advice. Period: 1 year (daily data).'**
+  String get ratingDisclaimer;
 }
 
 class _AppLocalizationsDelegate

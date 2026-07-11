@@ -18,6 +18,7 @@ import '../widgets/notes_sheet.dart';
 import '../widgets/search_field.dart';
 import '../widgets/stock_chart.dart';
 import '../widgets/stock_details_sheet.dart';
+import '../widgets/stock_rating_sheet.dart';
 import '../widgets/watchlist_sheet.dart';
 
 const _kPrivacyUrl =
@@ -461,6 +462,21 @@ class _PriceChip extends StatelessWidget {
                             ],
                           ),
                         ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.analytics_outlined,
+                          size: 18, color: color.withAlpha(160)),
+                      tooltip: l10n.ratingTitle,
+                      padding: EdgeInsets.zero,
+                      constraints:
+                          const BoxConstraints(minWidth: 32, minHeight: 32),
+                      onPressed: () => StockRatingSheet.show(
+                        context,
+                        symbol: info.symbol,
+                        name: info.name,
+                        currentPrice: info.currentPrice,
+                        color: color,
                       ),
                     ),
                     IconButton(

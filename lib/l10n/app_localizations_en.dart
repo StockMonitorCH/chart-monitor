@@ -396,4 +396,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notesClearAllConfirm => 'Delete all notes?';
+
+  @override
+  String get ratingTitle => 'Stock Analysis';
+
+  @override
+  String get ratingOverall => 'Overall Rating';
+
+  @override
+  String get ratingPerformance => 'Performance';
+
+  @override
+  String get ratingRisk => 'Risk';
+
+  @override
+  String get ratingFundamental => 'Fundamental';
+
+  @override
+  String get ratingTechnical => 'Technical';
+
+  @override
+  String get ratingTradability => 'Tradability';
+
+  @override
+  String get ratingAnalyst => 'Analyst Rating';
+
+  @override
+  String get ratingLoading => 'Calculating analysis…';
+
+  @override
+  String get ratingError => 'Analysis unavailable';
+
+  @override
+  String get ratingInfoTitle => 'How does the rating work?';
+
+  @override
+  String get ratingInfoBody =>
+      'The rating is based on technical and fundamental indicators over the past year (daily data) and is calculated automatically.\n\n⭐ Performance\nPrice development over 1 year. Bonus if price is above MA50 and MA200.\n\n⭐ Risk\nAnnualized volatility (std dev of daily returns × √252) and beta coefficient. Lower values = more stars.\n\n⭐ Fundamental\nAnalyst price target vs. current price (upside/downside). Bonus for attractive dividend yield.\n\n⭐ Technical\nSignals from MA20, MA38, MA50, MA200, RSI-14, Bollinger Bands (20d, 2σ), and trendline (linear regression).\n\n⭐ Tradability\nSharpe ratio (risk-adjusted return), Alpha vs. S&P 500, and trend consistency (R²).\n\n⭐ Analyst Rating\nConsensus of analyst recommendations (Buy / Hold / Sell) weighted by price target upside.\n\n⭐ Overall Rating\nWeighted average: Technical 25%, Performance 20%, Risk 15%, Fundamental 15%, Analysts 15%, Tradability 10%.\n\nHalf stars are possible (0.5–5.0).';
+
+  @override
+  String get ratingDisclaimer =>
+      'Not investment advice. Period: 1 year (daily data).';
 }

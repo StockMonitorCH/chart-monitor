@@ -130,5 +130,18 @@
   "notesHint": "Enter note…",
   "notesDelete": "Delete",
   "notesClearAll": "Clear all",
-  "notesClearAllConfirm": "Delete all notes?"
+  "notesClearAllConfirm": "Delete all notes?",
+  "ratingTitle": "Stock Analysis",
+  "ratingOverall": "Overall Rating",
+  "ratingPerformance": "Performance",
+  "ratingRisk": "Risk",
+  "ratingFundamental": "Fundamental",
+  "ratingTechnical": "Technical",
+  "ratingTradability": "Tradability",
+  "ratingAnalyst": "Analyst Rating",
+  "ratingLoading": "Calculating analysis…",
+  "ratingError": "Analysis unavailable",
+  "ratingInfoTitle": "How does the rating work?",
+  "ratingInfoBody": "The rating is based on technical and fundamental indicators over the past year (daily data) and is calculated automatically.\n\n⭐ Performance\nPrice development over 1 year. Bonus if price is above MA50 and MA200.\n\n⭐ Risk\nAnnualized volatility (std dev of daily returns × √252) and beta coefficient. Lower values = more stars.\n\n⭐ Fundamental\nAnalyst price target vs. current price (upside/downside). Bonus for attractive dividend yield.\n\n⭐ Technical\nSignals from MA20, MA38, MA50, MA200, RSI-14, Bollinger Bands (20d, 2σ), and trendline (linear regression).\n\n⭐ Tradability\nSharpe ratio (risk-adjusted return), Alpha vs. S&P 500, and trend consistency (R²).\n\n⭐ Analyst Rating\nConsensus of analyst recommendations (Buy / Hold / Sell) weighted by price target upside.\n\n⭐ Overall Rating\nWeighted average: Technical 25%, Performance 20%, Risk 15%, Fundamental 15%, Analysts 15%, Tradability 10%.\n\nHalf stars are possible (0.5–5.0).",
+  "ratingDisclaimer": "Not investment advice. Period: 1 year (daily data)."
 }

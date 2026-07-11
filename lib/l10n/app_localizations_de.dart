@@ -396,4 +396,45 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get notesClearAllConfirm => 'Alle Notizen löschen?';
+
+  @override
+  String get ratingTitle => 'Aktien-Analyse';
+
+  @override
+  String get ratingOverall => 'Gesamtrating';
+
+  @override
+  String get ratingPerformance => 'Performance';
+
+  @override
+  String get ratingRisk => 'Risiko';
+
+  @override
+  String get ratingFundamental => 'Fundamental';
+
+  @override
+  String get ratingTechnical => 'Technisch';
+
+  @override
+  String get ratingTradability => 'Zum Traden geeignet';
+
+  @override
+  String get ratingAnalyst => 'Analystenempfehlung';
+
+  @override
+  String get ratingLoading => 'Analyse wird berechnet…';
+
+  @override
+  String get ratingError => 'Analyse nicht verfügbar';
+
+  @override
+  String get ratingInfoTitle => 'Wie funktioniert die Bewertung?';
+
+  @override
+  String get ratingInfoBody =>
+      'Die Bewertung basiert auf technischen und fundamentalen Indikatoren des letzten Jahres (Tagesdaten) und wird automatisch berechnet.\n\n⭐ Performance\nKursentwicklung über 1 Jahr. Bonus, wenn der Kurs über MA50 und MA200 liegt.\n\n⭐ Risiko\nAnnualisierte Volatilität (Standardabweichung der Tagesrenditen × √252) und Beta-Koeffizient. Niedrige Werte = mehr Sterne.\n\n⭐ Fundamental\nAnalysten-Kursziel vs. aktueller Kurs (Upside/Downside). Bonus für attraktive Dividendenrendite.\n\n⭐ Technisch\nSignale aus MA20, MA38, MA50, MA200, RSI-14, Bollinger-Bänder (20T, 2σ) und Trendlinie (lineare Regression).\n\n⭐ Zum Traden geeignet\nSharpe Ratio (risikobereinigte Rendite), Alpha vs. S&P 500 und Trendkonsistenz (R²).\n\n⭐ Analystenempfehlung\nKonsens der Analystenbewertungen (Kaufen / Halten / Verkaufen) gewichtet nach Kursziel-Upside.\n\n⭐ Gesamtrating\nGewichteter Durchschnitt: Technisch 25 %, Performance 20 %, Risiko 15 %, Fundamental 15 %, Analysten 15 %, Traden 10 %.\n\nHalbe Sterne sind möglich (0,5–5,0).';
+
+  @override
+  String get ratingDisclaimer =>
+      'Keine Anlageempfehlung. Zeitraum: 1 Jahr (Tagesdaten).';
 }
