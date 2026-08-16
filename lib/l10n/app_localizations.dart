@@ -913,6 +913,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not investment advice. Period: 1 year (daily data).'**
   String get ratingDisclaimer;
+
+  /// No description provided for @screenerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Screener'**
+  String get screenerTitle;
+
+  /// No description provided for @screenerPerfLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance (1 year)'**
+  String get screenerPerfLabel;
+
+  /// No description provided for @screenerPerfHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select level…'**
+  String get screenerPerfHint;
+
+  /// No description provided for @screenerKgvLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. P/E Ratio (optional)'**
+  String get screenerKgvLabel;
+
+  /// No description provided for @screenerKgvHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 25'**
+  String get screenerKgvHint;
+
+  /// No description provided for @screenerLogicLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Logic'**
+  String get screenerLogicLabel;
+
+  /// No description provided for @screenerLogicHintNoKgv.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter P/E ratio to enable logic filter'**
+  String get screenerLogicHintNoKgv;
+
+  /// No description provided for @screenerLogicHintNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Only performance filter active'**
+  String get screenerLogicHintNone;
+
+  /// No description provided for @screenerLogicHintAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance AND P/E must match'**
+  String get screenerLogicHintAnd;
+
+  /// No description provided for @screenerLogicHintOr.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance OR P/E must match'**
+  String get screenerLogicHintOr;
+
+  /// No description provided for @screenerSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get screenerSearch;
+
+  /// No description provided for @screenerLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning stocks…'**
+  String get screenerLoading;
+
+  /// No description provided for @screenerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a level and tap «Search»'**
+  String get screenerHint;
+
+  /// No description provided for @screenerNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No stocks found'**
+  String get screenerNoResults;
+
+  /// No description provided for @screenerInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How does the screener work?'**
+  String get screenerInfoTitle;
+
+  /// No description provided for @screenerUniverseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Universe'**
+  String get screenerUniverseLabel;
+
+  /// No description provided for @screenerUniverseSp.
+  ///
+  /// In en, this message translates to:
+  /// **'S&P 500 (~500 stocks, live lookup)'**
+  String get screenerUniverseSp;
+
+  /// No description provided for @screenerUniverseNasdaq.
+  ///
+  /// In en, this message translates to:
+  /// **'S&P 500 + NASDAQ 100 (~560 stocks)'**
+  String get screenerUniverseNasdaq;
+
+  /// No description provided for @screenerUniverseExtended.
+  ///
+  /// In en, this message translates to:
+  /// **'S&P 500 + NASDAQ 100 + Popular US stocks (~700 stocks)'**
+  String get screenerUniverseExtended;
+
+  /// No description provided for @screenerInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The stock screener searches US stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\n• S&P 500: The ~500 largest US companies (fetched live from Yahoo Finance).\n• +NASDAQ 100: Also includes the 100 largest NASDAQ tech stocks.\n• +Extended: Also includes popular US stocks from AI, EV, biotech, crypto, and more (e.g. IONQ, RKLB, RIVN, COIN).\n\nNot investment advice. Data: Yahoo Finance.'**
+  String get screenerInfoBody;
 }
 
 class _AppLocalizationsDelegate

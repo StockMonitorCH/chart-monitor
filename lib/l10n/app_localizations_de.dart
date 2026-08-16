@@ -437,4 +437,67 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get ratingDisclaimer =>
       'Keine Anlageempfehlung. Zeitraum: 1 Jahr (Tagesdaten).';
+
+  @override
+  String get screenerTitle => 'Aktien-Screener';
+
+  @override
+  String get screenerPerfLabel => 'Performance (1 Jahr)';
+
+  @override
+  String get screenerPerfHint => 'Stufe wählen…';
+
+  @override
+  String get screenerKgvLabel => 'Max. KGV (optional)';
+
+  @override
+  String get screenerKgvHint => 'z. B. 25';
+
+  @override
+  String get screenerLogicLabel => 'Verknüpfung';
+
+  @override
+  String get screenerLogicHintNoKgv =>
+      'KGV eingeben, um Verknüpfung zu aktivieren';
+
+  @override
+  String get screenerLogicHintNone => 'Nur Performance-Filter aktiv';
+
+  @override
+  String get screenerLogicHintAnd => 'Performance UND KGV müssen passen';
+
+  @override
+  String get screenerLogicHintOr => 'Performance ODER KGV muss passen';
+
+  @override
+  String get screenerSearch => 'Suchen';
+
+  @override
+  String get screenerLoading => 'Aktien werden durchsucht…';
+
+  @override
+  String get screenerHint => 'Stufe wählen und «Suchen» tippen';
+
+  @override
+  String get screenerNoResults => 'Keine Aktien gefunden';
+
+  @override
+  String get screenerInfoTitle => 'Wie funktioniert der Screener?';
+
+  @override
+  String get screenerUniverseLabel => 'Universum';
+
+  @override
+  String get screenerUniverseSp => 'S&P 500 (~500 Aktien, Live-Abfrage)';
+
+  @override
+  String get screenerUniverseNasdaq => 'S&P 500 + NASDAQ 100 (~560 Aktien)';
+
+  @override
+  String get screenerUniverseExtended =>
+      'S&P 500 + NASDAQ 100 + Populäre US-Aktien (~700 Aktien)';
+
+  @override
+  String get screenerInfoBody =>
+      'Der Aktien-Screener durchsucht US-Aktien nach Performance und optionalem KGV.\n\n📅 Zeitraum\nDie Performance wird über 12 Monate (1 Jahr) berechnet.\n\n📊 Performance-Stufen\nJede Stufe umfasst einen 10-Prozentpunkte-Bereich:\n• 10% → Kursanstieg 10 – 19 %\n• 20% → Kursanstieg 20 – 29 %\n• …\n• 90% → Kursanstieg 90 – 99 %\n• 100+% → Kursanstieg ≥ 100 %\n\n📈 KGV (Kurs-Gewinn-Verhältnis)\nDas Trailing P/E Ratio. Ein tiefes KGV kann auf eine günstige Bewertung hindeuten.\n\n🔗 Verknüpfung\n• AND: Beide Kriterien (Performance und KGV) müssen erfüllt sein.\n• OR: Mindestens ein Kriterium muss erfüllt sein.\n• Keine Auswahl: Nur der Performance-Filter wird angewendet.\n\n🌐 Universum\n• S&P 500: Die ~500 grössten US-Unternehmen (Live-Abfrage von Yahoo Finance).\n• +NASDAQ 100: Zusätzlich die 100 grössten Technologiewerte des NASDAQ.\n• +Erweitert: Zusätzlich populäre US-Aktien aus Innovation, KI, EV, Biotech, Krypto u. v. m. (z. B. IONQ, RKLB, RIVN, COIN).\n\nKeine Anlageempfehlung. Kursdaten: Yahoo Finance.';
 }

@@ -794,6 +794,100 @@ class YahooFinanceService {
     return (beta: beta, dividendYield: dividendYield);
   }
 
+  // ── Screener: S&P 500 constituent list ──────────────────────────────────────
+
+  /// Fetches current S&P 500 symbols from Yahoo Finance screener.
+  /// Falls back to [fallback] on any error.
+  Future<List<String>> fetchSp500Symbols(List<String> fallback) async {
+    try {
+      const url = 'https://query1.finance.yahoo.com/v1/finance/screener'
+          '/predefined/saved?scrIds=s_p_500&count=600&fields=symbol';
+      var resp = await http.get(Uri.parse(url), headers: _headers)
+          .timeout(const Duration(seconds: 15));
+      if (resp.statusCode == 401 || resp.statusCode == 403) {
+        await _ensureSession();
+        resp = await http.get(Uri.parse(url), headers: _headers)
+            .timeout(const Duration(seconds: 15));
+      }
+      if (resp.statusCode != 200) return fallback;
+      final data = jsonDecode(resp.body) as Map<String, dynamic>;
+      final quotes = data['finance']?['result'] as List?;
+      if (quotes == null || quotes.isEmpty) return fallback;
+      final symbols = (quotes[0]['quotes'] as List<dynamic>?)
+          ?.map((q) => q['symbol'] as String?)
+          .whereType<String>()
+          .toList();
+      if (symbols == null || symbols.isEmpty) return fallback;
+      debugPrint('[YF] S&P 500 list: ${symbols.length} symbols (live)');
+      return symbols;
+    } catch (e) {
+      debugPrint('[YF] fetchSp500Symbols fallback: $e');
+      return fallback;
+    }
+  }
+
+  // ── Screener batch APIs ─────────────────────────────────────────────────────
+
+  /// Fetches 1-year performance for a batch of symbols using the spark endpoint.
+  /// Returns: symbol → performance % (null if data unavailable).
+  /// Fetches 1-year performance + current price for one symbol.
+  /// Uses the same v8 chart endpoint the rest of the app uses — reliable.
+  Future<ScreenerStockData?> fetchScreenerStock(String symbol) async {
+    try {
+      final resp = await _chartGet(symbol, {'range': '1y', 'interval': '1mo'});
+      if (resp.statusCode != 200) return null;
+      final data = jsonDecode(resp.body) as Map<String, dynamic>;
+      final result = data['chart']?['result'] as List<dynamic>?;
+      if (result == null || result.isEmpty) return null;
+      final meta = result[0]['meta'] as Map<String, dynamic>?;
+      if (meta == null) return null;
+      final current = (meta['regularMarketPrice'] as num?)?.toDouble();
+      final prev    = (meta['chartPreviousClose']  as num?)?.toDouble();
+      if (current == null || current == 0 || prev == null || prev == 0) return null;
+      final perf = (current - prev) / prev * 100;
+      final name = (meta['longName'] ?? meta['shortName'] ?? symbol) as String? ?? symbol;
+      return ScreenerStockData(symbol: symbol, name: name, price: current, performancePct: perf);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Fetches trailing P/E ratio for one symbol (summaryDetail module).
+  Future<double?> fetchTrailingPE(String symbol) async {
+    double? parse(dynamic body) {
+      final result = body['quoteSummary']?['result'] as List?;
+      if (result == null || result.isEmpty) return null;
+      final detail = result[0]['summaryDetail'] as Map<String, dynamic>?;
+      if (detail == null) return null;
+      final v = detail['trailingPE'];
+      if (v is Map) return (v['raw'] as num?)?.toDouble();
+      if (v is num) return v.toDouble();
+      return null;
+    }
+
+    Future<double?> tryUrl(String url, Map<String, String> hdrs) async {
+      try {
+        final resp = await http.get(Uri.parse(url), headers: hdrs)
+            .timeout(const Duration(seconds: 8));
+        if (resp.statusCode == 200) return parse(jsonDecode(resp.body));
+      } catch (_) {}
+      return null;
+    }
+
+    const mod   = '?modules=summaryDetail';
+    const base1 = 'https://query1.finance.yahoo.com/v10/finance/quoteSummary/';
+    const base2 = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/';
+
+    var pe = await tryUrl('$base1$symbol$mod', _baseHeaders);
+    pe ??= await tryUrl('$base2$symbol$mod', _baseHeaders);
+    if (pe != null) return pe;
+
+    // Fallback with cookie + crumb (same pattern as fetchSector)
+    await _ensureSession();
+    final crumb = _crumb != null ? '&crumb=${Uri.encodeComponent(_crumb!)}' : '';
+    return await tryUrl('$base1$symbol$mod$crumb', _headers);
+  }
+
   Future<List<NewsItem>> fetchNews(String symbol) async {
     try {
       final uri = Uri.parse(
@@ -822,4 +916,17 @@ class YahooFinanceService {
       return [];
     }
   }
+}
+
+class ScreenerStockData {
+  final String symbol;
+  final String name;
+  final double price;
+  final double performancePct;
+  const ScreenerStockData({
+    required this.symbol,
+    required this.name,
+    required this.price,
+    required this.performancePct,
+  });
 }

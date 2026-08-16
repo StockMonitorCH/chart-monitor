@@ -19,6 +19,7 @@ import '../widgets/search_field.dart';
 import '../widgets/stock_chart.dart';
 import '../widgets/stock_details_sheet.dart';
 import '../widgets/stock_rating_sheet.dart';
+import '../widgets/stock_screener_sheet.dart';
 import '../widgets/watchlist_sheet.dart';
 
 const _kPrivacyUrl =
@@ -134,11 +135,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            _version.isNotEmpty ? 'Chart Monitor  v$_version' : 'Chart Monitor',
-            style:
-                const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text('Chart M',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.manage_search),
+            tooltip: l10n.screenerTitle,
+            onPressed: () => StockScreenerSheet.show(context),
+          ),
           IconButton(
             icon: const Icon(Icons.bookmarks_outlined),
             tooltip: l10n.watchlistTitle,
