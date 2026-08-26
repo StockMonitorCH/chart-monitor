@@ -500,4 +500,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get screenerInfoBody =>
       'Der Aktien-Screener durchsucht US-Aktien nach Performance und optionalem KGV.\n\n📅 Zeitraum\nDie Performance wird über 12 Monate (1 Jahr) berechnet.\n\n📊 Performance-Stufen\nJede Stufe umfasst einen 10-Prozentpunkte-Bereich:\n• 10% → Kursanstieg 10 – 19 %\n• 20% → Kursanstieg 20 – 29 %\n• …\n• 90% → Kursanstieg 90 – 99 %\n• 100+% → Kursanstieg ≥ 100 %\n\n📈 KGV (Kurs-Gewinn-Verhältnis)\nDas Trailing P/E Ratio. Ein tiefes KGV kann auf eine günstige Bewertung hindeuten.\n\n🔗 Verknüpfung\n• AND: Beide Kriterien (Performance und KGV) müssen erfüllt sein.\n• OR: Mindestens ein Kriterium muss erfüllt sein.\n• Keine Auswahl: Nur der Performance-Filter wird angewendet.\n\n🌐 Universum\n• S&P 500: Die ~500 grössten US-Unternehmen (Live-Abfrage von Yahoo Finance).\n• +NASDAQ 100: Zusätzlich die 100 grössten Technologiewerte des NASDAQ.\n• +Erweitert: Zusätzlich populäre US-Aktien aus Innovation, KI, EV, Biotech, Krypto u. v. m. (z. B. IONQ, RKLB, RIVN, COIN).\n\nKeine Anlageempfehlung. Kursdaten: Yahoo Finance.';
+
+  @override
+  String get screenerDisclaimer =>
+      'Keine Anlageberatung. Kursdaten: Yahoo Finance.';
 }

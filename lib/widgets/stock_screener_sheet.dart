@@ -379,6 +379,17 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
               ],
             ),
           ),
+          // ── Fixed: disclaimer ────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            child: Text(
+              l10n.screenerDisclaimer,
+              style: TextStyle(
+                fontSize: 10,
+                color: colorScheme.onSurfaceVariant.withAlpha(150),
+              ),
+            ),
+          ),
         ],
       ),
     );

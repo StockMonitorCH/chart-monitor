@@ -159,6 +159,9 @@ class AlarmService {
         _kUniqueTag,
         _kTaskName,
         frequency: const Duration(minutes: 15),
+        // flexInterval lets WorkManager schedule within a ±5-min window,
+        // which helps on Huawei/EMUI where rigid schedules are often skipped.
+        flexInterval: const Duration(minutes: 5),
         constraints: Constraints(networkType: NetworkType.connected),
         existingWorkPolicy: ExistingPeriodicWorkPolicy.keep,
       );

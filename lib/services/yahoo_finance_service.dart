@@ -796,35 +796,8 @@ class YahooFinanceService {
 
   // ── Screener: S&P 500 constituent list ──────────────────────────────────────
 
-  /// Fetches current S&P 500 symbols from Yahoo Finance screener.
-  /// Falls back to [fallback] on any error.
-  Future<List<String>> fetchSp500Symbols(List<String> fallback) async {
-    try {
-      const url = 'https://query1.finance.yahoo.com/v1/finance/screener'
-          '/predefined/saved?scrIds=s_p_500&count=600&fields=symbol';
-      var resp = await http.get(Uri.parse(url), headers: _headers)
-          .timeout(const Duration(seconds: 15));
-      if (resp.statusCode == 401 || resp.statusCode == 403) {
-        await _ensureSession();
-        resp = await http.get(Uri.parse(url), headers: _headers)
-            .timeout(const Duration(seconds: 15));
-      }
-      if (resp.statusCode != 200) return fallback;
-      final data = jsonDecode(resp.body) as Map<String, dynamic>;
-      final quotes = data['finance']?['result'] as List?;
-      if (quotes == null || quotes.isEmpty) return fallback;
-      final symbols = (quotes[0]['quotes'] as List<dynamic>?)
-          ?.map((q) => q['symbol'] as String?)
-          .whereType<String>()
-          .toList();
-      if (symbols == null || symbols.isEmpty) return fallback;
-      debugPrint('[YF] S&P 500 list: ${symbols.length} symbols (live)');
-      return symbols;
-    } catch (e) {
-      debugPrint('[YF] fetchSp500Symbols fallback: $e');
-      return fallback;
-    }
-  }
+  /// Returns the hardcoded S&P 500 symbol list.
+  Future<List<String>> fetchSp500Symbols(List<String> fallback) async => fallback;
 
   // ── Screener batch APIs ─────────────────────────────────────────────────────
 
