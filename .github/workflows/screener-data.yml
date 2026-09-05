@@ -1,0 +1,39 @@
+name: Update Screener Data
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 02:00 UTC every night
+  workflow_dispatch:        # allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150    # US ~67 min + EU ~40 min + margin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch screener data (Finnhub + Twelve Data)
+        env:
+          FINNHUB_KEY:     ${{ secrets.FINNHUB_KEY }}
+          TWELVE_DATA_KEY: ${{ secrets.TWELVE_DATA_KEY }}
+        run: python scripts/fetch_screener_data.py
+
+      - name: Upload screener-data.json to Cyon via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:     ${{ secrets.CYON_FTP_HOST }}
+          username:   ${{ secrets.CYON_FTP_USER }}
+          password:   ${{ secrets.CYON_FTP_PASS }}
+          protocol:   ftps
+          local-dir:  ./output/
+          server-dir: /public_html/stock-monitor.ch/data/

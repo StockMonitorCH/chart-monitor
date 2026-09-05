@@ -1010,28 +1010,22 @@ abstract class AppLocalizations {
   /// **'Universe'**
   String get screenerUniverseLabel;
 
-  /// No description provided for @screenerUniverseSp.
+  /// No description provided for @screenerUniverseCount.
   ///
   /// In en, this message translates to:
-  /// **'S&P 500 (~500 stocks, live lookup)'**
-  String get screenerUniverseSp;
+  /// **'{count} stocks selected'**
+  String screenerUniverseCount(int count);
 
-  /// No description provided for @screenerUniverseNasdaq.
+  /// No description provided for @screenerUniverseNone.
   ///
   /// In en, this message translates to:
-  /// **'S&P 500 + NASDAQ 100 (~560 stocks)'**
-  String get screenerUniverseNasdaq;
-
-  /// No description provided for @screenerUniverseExtended.
-  ///
-  /// In en, this message translates to:
-  /// **'S&P 500 + NASDAQ 100 + Popular US stocks (~700 stocks)'**
-  String get screenerUniverseExtended;
+  /// **'Select at least one index'**
+  String get screenerUniverseNone;
 
   /// No description provided for @screenerInfoBody.
   ///
   /// In en, this message translates to:
-  /// **'The stock screener searches US stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\n• S&P 500: The ~500 largest US companies (fetched live from Yahoo Finance).\n• +NASDAQ 100: Also includes the 100 largest NASDAQ tech stocks.\n• +Extended: Also includes popular US stocks from AI, EV, biotech, crypto, and more (e.g. IONQ, RKLB, RIVN, COIN).\n\nNot investment advice. Data: Yahoo Finance.'**
+  /// **'The stock screener searches stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\nMultiple indices can be selected simultaneously:\n• S&P 500: ~503 US stocks (USD)\n• NASDAQ 100: ~100 US tech stocks (USD)\n• Extended: ~200 popular US growth stocks (USD)\n• DAX 40: ~40 German stocks on XETRA (EUR)\n• SMI 20: ~21 Swiss stocks on SIX (CHF)\n\nNot investment advice. Data: Yahoo Finance.'**
   String get screenerInfoBody;
 
   /// No description provided for @screenerDisclaimer.

@@ -488,18 +488,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get screenerUniverseLabel => 'Universum';
 
   @override
-  String get screenerUniverseSp => 'S&P 500 (~500 Aktien, Live-Abfrage)';
+  String screenerUniverseCount(int count) {
+    return '$count Aktien ausgewählt';
+  }
 
   @override
-  String get screenerUniverseNasdaq => 'S&P 500 + NASDAQ 100 (~560 Aktien)';
-
-  @override
-  String get screenerUniverseExtended =>
-      'S&P 500 + NASDAQ 100 + Populäre US-Aktien (~700 Aktien)';
+  String get screenerUniverseNone => 'Mindestens einen Index wählen';
 
   @override
   String get screenerInfoBody =>
-      'Der Aktien-Screener durchsucht US-Aktien nach Performance und optionalem KGV.\n\n📅 Zeitraum\nDie Performance wird über 12 Monate (1 Jahr) berechnet.\n\n📊 Performance-Stufen\nJede Stufe umfasst einen 10-Prozentpunkte-Bereich:\n• 10% → Kursanstieg 10 – 19 %\n• 20% → Kursanstieg 20 – 29 %\n• …\n• 90% → Kursanstieg 90 – 99 %\n• 100+% → Kursanstieg ≥ 100 %\n\n📈 KGV (Kurs-Gewinn-Verhältnis)\nDas Trailing P/E Ratio. Ein tiefes KGV kann auf eine günstige Bewertung hindeuten.\n\n🔗 Verknüpfung\n• AND: Beide Kriterien (Performance und KGV) müssen erfüllt sein.\n• OR: Mindestens ein Kriterium muss erfüllt sein.\n• Keine Auswahl: Nur der Performance-Filter wird angewendet.\n\n🌐 Universum\n• S&P 500: Die ~500 grössten US-Unternehmen (Live-Abfrage von Yahoo Finance).\n• +NASDAQ 100: Zusätzlich die 100 grössten Technologiewerte des NASDAQ.\n• +Erweitert: Zusätzlich populäre US-Aktien aus Innovation, KI, EV, Biotech, Krypto u. v. m. (z. B. IONQ, RKLB, RIVN, COIN).\n\nKeine Anlageempfehlung. Kursdaten: Yahoo Finance.';
+      'Der Aktien-Screener durchsucht Aktien nach Performance und optionalem KGV.\n\n📅 Zeitraum\nDie Performance wird über 12 Monate (1 Jahr) berechnet.\n\n📊 Performance-Stufen\nJede Stufe umfasst einen 10-Prozentpunkte-Bereich:\n• 10% → Kursanstieg 10 – 19 %\n• 20% → Kursanstieg 20 – 29 %\n• …\n• 90% → Kursanstieg 90 – 99 %\n• 100+% → Kursanstieg ≥ 100 %\n\n📈 KGV (Kurs-Gewinn-Verhältnis)\nDas Trailing P/E Ratio. Ein tiefes KGV kann auf eine günstige Bewertung hindeuten.\n\n🔗 Verknüpfung\n• AND: Beide Kriterien (Performance und KGV) müssen erfüllt sein.\n• OR: Mindestens ein Kriterium muss erfüllt sein.\n• Keine Auswahl: Nur der Performance-Filter wird angewendet.\n\n🌐 Universum\nMehrere Indizes können gleichzeitig ausgewählt werden:\n• S&P 500: ~503 US-Aktien (USD)\n• NASDAQ 100: ~100 US-Technologieaktien (USD)\n• Erweitert: ~200 populäre US-Wachstumsaktien (USD)\n• DAX 40: ~40 deutsche Aktien auf XETRA (EUR)\n• SMI 20: ~21 Schweizer Aktien auf SIX (CHF)\n\nKeine Anlageempfehlung. Kursdaten: Yahoo Finance.';
 
   @override
   String get screenerDisclaimer =>

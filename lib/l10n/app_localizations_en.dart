@@ -487,18 +487,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenerUniverseLabel => 'Universe';
 
   @override
-  String get screenerUniverseSp => 'S&P 500 (~500 stocks, live lookup)';
+  String screenerUniverseCount(int count) {
+    return '$count stocks selected';
+  }
 
   @override
-  String get screenerUniverseNasdaq => 'S&P 500 + NASDAQ 100 (~560 stocks)';
-
-  @override
-  String get screenerUniverseExtended =>
-      'S&P 500 + NASDAQ 100 + Popular US stocks (~700 stocks)';
+  String get screenerUniverseNone => 'Select at least one index';
 
   @override
   String get screenerInfoBody =>
-      'The stock screener searches US stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\n• S&P 500: The ~500 largest US companies (fetched live from Yahoo Finance).\n• +NASDAQ 100: Also includes the 100 largest NASDAQ tech stocks.\n• +Extended: Also includes popular US stocks from AI, EV, biotech, crypto, and more (e.g. IONQ, RKLB, RIVN, COIN).\n\nNot investment advice. Data: Yahoo Finance.';
+      'The stock screener searches stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\nMultiple indices can be selected simultaneously:\n• S&P 500: ~503 US stocks (USD)\n• NASDAQ 100: ~100 US tech stocks (USD)\n• Extended: ~200 popular US growth stocks (USD)\n• DAX 40: ~40 German stocks on XETRA (EUR)\n• SMI 20: ~21 Swiss stocks on SIX (CHF)\n\nNot investment advice. Data: Yahoo Finance.';
 
   @override
   String get screenerDisclaimer =>

@@ -107,3 +107,47 @@ List<String> screenerUniverse({int mode = 0}) {
   if (mode == 2) base.addAll(kExtendedSymbols);
   return base.where(seen.add).toList();
 }
+
+// DAX 40 constituents (approximate, as of mid-2025)
+// Yahoo Finance symbols: XETRA exchange (.DE suffix)
+const List<String> kDax40Symbols = [
+  'ADS.DE',  'AIR.DE',  'ALV.DE',  'BAS.DE',  'BAYN.DE',
+  'BEI.DE',  'BMW.DE',  'BNR.DE',  'CBK.DE',  'CON.DE',
+  'DB1.DE',  'DBK.DE',  'DHL.DE',  'DTE.DE',  'DTG.DE',
+  'EOAN.DE', 'ENR.DE',  'FRE.DE',  'HEIG.DE', 'HEN3.DE',
+  'HNR1.DE', 'IFX.DE',  'KBX.DE',  'MBG.DE',  'MRK.DE',
+  'MTX.DE',  'MUV2.DE', 'P911.DE', 'PAH3.DE', 'QIA.DE',
+  'RHM.DE',  'RWE.DE',  'SAP.DE',  'SHL.DE',  'SIE.DE',
+  'SRT3.DE', 'SY1.DE',  'VOW3.DE', 'VNA.DE',  'ZAL.DE',
+];
+
+// SMI 20 constituents (approximate, as of mid-2025)
+// Yahoo Finance symbols: SIX Swiss Exchange (.SW suffix)
+const List<String> kSmi20Symbols = [
+  'ABBN.SW', 'ALC.SW',  'GEBN.SW', 'GIVN.SW', 'HOLN.SW',
+  'BAER.SW', 'KNIN.SW', 'LONN.SW', 'NESN.SW', 'NOVN.SW',
+  'PGHN.SW', 'CFR.SW',  'ROG.SW',  'SDZ.SW',  'SCHP.SW',
+  'SIKA.SW', 'SOON.SW', 'SLHN.SW', 'SREN.SW', 'UBSG.SW',
+  'ZURN.SW',
+];
+
+/// Returns deduped symbol list for the given set of index IDs:
+///   0 = S&P 500,  1 = NASDAQ 100,  2 = Erweitert,
+///   3 = DAX 40,   4 = SMI 20
+List<String> screenerUniverseForIndices(Set<int> ids) {
+  final seen = <String>{};
+  final result = <String>[];
+  void add(List<String> list) {
+    for (final s in list) {
+      if (seen.add(s)) result.add(s);
+    }
+  }
+  if (ids.contains(0)) add(kSp500Symbols);
+  if (ids.contains(1)) add(kNasdaq100Symbols);
+  if (ids.contains(2)) add(kExtendedSymbols);
+  if (ids.contains(3)) add(kDax40Symbols);
+  if (ids.contains(4)) add(kSmi20Symbols);
+  return result;
+}
+
+int screenerTotalCount(Set<int> ids) => screenerUniverseForIndices(ids).length;

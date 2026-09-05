@@ -1,14 +1,27 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../data/sp500_symbols.dart';
 import '../l10n/app_localizations.dart';
 import '../models/chart_state.dart';
-import '../services/yahoo_finance_service.dart';
+import '../services/screener_data_service.dart';
 
 enum _Logic { and, or_ }
+
+// Approximate stock counts per index (for UI display before data loads)
+const _kIndexCounts = {0: 486, 1: 100, 2: 80, 3: 513, 4: 155, 5: 39, 6: 21, 7: 85};
+const _kIndexLabels = {
+  0: 'S&P 500',
+  1: 'Nasdaq 100',
+  2: 'Nasdaq Interessant',
+  3: 'Russell 2000',
+  4: 'NYSE 200',
+  5: 'DAX 40',
+  6: 'SMI 20',
+  7: 'FTSE 100',
+};
+
+const _kPerfSteps = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 class _ScreenerResult {
   final String symbol;
@@ -23,19 +36,17 @@ class _ScreenerResult {
   });
 }
 
-const _kPerfSteps  = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-const _kConcurrent = 20;
-
-// In-memory singleton — survives sheet close/reopen within the same app session
+// In-memory singleton — survives sheet close/reopen within one app session
 class _ScreenerMemory {
   static final _ScreenerMemory _i = _ScreenerMemory._();
   _ScreenerMemory._();
 
-  int?             selectedPerf;
-  String           kgvText      = '';
-  _Logic?          logic;
-  int              universeMode = 0; // 0=S&P500, 1=+NASDAQ100, 2=+Erweitert
-  bool             searched     = false;
+  int?          selectedPerf;
+  String        kgvText         = '';
+  _Logic?       logic;
+  Set<int>      selectedIndices = {0};
+  bool          searched        = false;
+  String        generatedAt     = '';
   List<_ScreenerResult> results = const [];
 }
 
@@ -62,30 +73,30 @@ class StockScreenerSheet extends StatefulWidget {
 }
 
 class _StockScreenerSheetState extends State<StockScreenerSheet> {
-  final _service       = YahooFinanceService();
-  final _kgvController = TextEditingController();
-  final _mem           = _ScreenerMemory._i;
+  final _screenerService = ScreenerDataService();
+  final _kgvController   = TextEditingController();
+  final _mem             = _ScreenerMemory._i;
 
-  int?    _selectedPerf;
-  _Logic? _logic;
-  int     _universeMode  = 0;
+  int?     _selectedPerf;
+  _Logic?  _logic;
+  Set<int> _selectedIndices = {0};
 
-  bool    _loading      = false;
-  bool    _searched     = false;
+  bool    _loading     = false;
+  bool    _searched    = false;
   String? _error;
+  String  _generatedAt = '';
   List<_ScreenerResult> _results = [];
-  double  _progress     = 0.0;
-  String  _progressText = '';
 
   @override
   void initState() {
     super.initState();
-    _selectedPerf        = _mem.selectedPerf;
-    _kgvController.text  = _mem.kgvText;
-    _logic               = _mem.logic;
-    _universeMode        = _mem.universeMode;
-    _searched            = _mem.searched;
-    _results             = List.from(_mem.results);
+    _selectedPerf    = _mem.selectedPerf;
+    _kgvController.text = _mem.kgvText;
+    _logic           = _mem.logic;
+    _selectedIndices = Set.from(_mem.selectedIndices);
+    _searched        = _mem.searched;
+    _results         = List.from(_mem.results);
+    _generatedAt     = _mem.generatedAt;
   }
 
   @override
@@ -96,12 +107,13 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
 
   void _saveToMemory() {
     _mem
-      ..selectedPerf = _selectedPerf
-      ..kgvText      = _kgvController.text
-      ..logic        = _logic
-      ..universeMode = _universeMode
-      ..searched     = _searched
-      ..results      = List.from(_results);
+      ..selectedPerf    = _selectedPerf
+      ..kgvText         = _kgvController.text
+      ..logic           = _logic
+      ..selectedIndices = Set.from(_selectedIndices)
+      ..searched        = _searched
+      ..generatedAt     = _generatedAt
+      ..results         = List.from(_results);
   }
 
   String _perfLabel(int step) =>
@@ -115,129 +127,64 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
     final useOr   = _logic == _Logic.or_;
 
     setState(() {
-      _loading = true; _error = null; _results = [];
-      _searched = true; _progress = 0.0; _progressText = '';
+      _loading  = true;
+      _error    = null;
+      _results  = [];
+      _searched = true;
     });
 
     try {
-      // Mode 0: try live Yahoo fetch (with hardcoded fallback).
-      // Modes 1/2: always use the static lists (NASDAQ/Extended have no live source).
-      final allSymbols = _universeMode == 0
-          ? await _service.fetchSp500Symbols(kSp500Symbols)
-          : screenerUniverse(mode: _universeMode);
+      // Download JSON once, then reuse from cache — typically instant after first load
+      final data    = await _screenerService.load();
+      final entries = _screenerService.entriesForIndices(_selectedIndices, data);
 
-      // ── Phase 1: fetch performance + price for every symbol ─────────────────
-      final dataMap = <String, ScreenerStockData>{};
-
-      for (var i = 0; i < allSymbols.length; i += _kConcurrent) {
-        if (!mounted) return;
-        final batch = allSymbols.sublist(
-            i, math.min(i + _kConcurrent, allSymbols.length));
-        final results =
-            await Future.wait(batch.map(_service.fetchScreenerStock));
-        for (var j = 0; j < batch.length; j++) {
-          final d = results[j];
-          if (d != null) dataMap[batch[j]] = d;
-        }
-        if (mounted) {
-          setState(() {
-            _progress =
-                math.min(1.0, (i + _kConcurrent) / allSymbols.length);
-            _progressText =
-                '${math.min(i + _kConcurrent, allSymbols.length)} / ${allSymbols.length}';
-          });
-        }
-      }
-
-      // ── Performance bounds ──────────────────────────────────────────────────
       final perfMin = _selectedPerf!.toDouble();
-      final perfMax =
-          _selectedPerf! < 100 ? (_selectedPerf! + 10).toDouble() : null;
+      final perfMax = _selectedPerf! < 100 ? (_selectedPerf! + 10).toDouble() : null;
 
       bool perfOk(double p) {
         if (perfMax == null) return p >= perfMin;
         return p >= perfMin && p < perfMax;
       }
 
-      // ── Phase 2: apply filters ──────────────────────────────────────────────
-      List<_ScreenerResult> candidates;
-
-      if (maxKgv == null || (!useAnd && !useOr)) {
-        // Performance-only
-        candidates = dataMap.values
-            .where((d) => perfOk(d.performancePct))
-            .map((d) => _ScreenerResult(
-                  symbol: d.symbol,
-                  name: d.name,
-                  price: d.price,
-                  performancePct: d.performancePct,
-                ))
-            .toList();
-      } else {
-        // Need PE data
-        final needPe = useAnd
-            ? dataMap.values
-                .where((d) => perfOk(d.performancePct))
-                .map((d) => d.symbol)
-                .toList()
-            : dataMap.keys.toList(); // OR needs PE for everyone
-
-        if (mounted) {
-          setState(() {
-            _progress     = 0.0;
-            _progressText = 'KGV: 0 / ${needPe.length}';
-          });
-        }
-
-        final peMap = <String, double?>{};
-        for (var i = 0; i < needPe.length; i += _kConcurrent) {
-          if (!mounted) return;
-          final batch = needPe.sublist(
-              i, math.min(i + _kConcurrent, needPe.length));
-          final peResults =
-              await Future.wait(batch.map(_service.fetchTrailingPE));
-          for (var j = 0; j < batch.length; j++) {
-            peMap[batch[j]] = peResults[j];
-          }
-          if (mounted) {
-            final done = math.min(i + _kConcurrent, needPe.length);
-            setState(() {
-              _progress     = done / needPe.length;
-              _progressText = 'KGV: $done / ${needPe.length}';
-            });
-          }
-        }
-
-        bool kgvOk(String sym) {
-          final pe = peMap[sym];
-          return pe != null && pe > 0 && pe <= maxKgv;
-        }
-
-        candidates = dataMap.values.where((d) {
-          final pm = perfOk(d.performancePct);
-          final km = kgvOk(d.symbol);
-          return useAnd ? (pm && km) : (pm || km);
-        }).map((d) => _ScreenerResult(
-              symbol: d.symbol,
-              name: d.name,
-              price: d.price,
-              performancePct: d.performancePct,
-            )).toList();
+      bool kgvOk(ScreenerEntry e) {
+        if (maxKgv == null) return true;
+        final pe = e.pe;
+        return pe != null && pe > 0 && pe <= maxKgv;
       }
 
-      candidates
-          .sort((a, b) => b.performancePct.compareTo(a.performancePct));
+      // Local filter — runs instantly on the in-memory data
+      final List<ScreenerEntry> candidates;
+      if (maxKgv == null || (!useAnd && !useOr)) {
+        candidates = entries.where((e) => perfOk(e.perf1y)).toList();
+      } else {
+        candidates = entries.where((e) {
+          final pm = perfOk(e.perf1y);
+          final km = kgvOk(e);
+          return useAnd ? (pm && km) : (pm || km);
+        }).toList();
+      }
+
+      candidates.sort((a, b) => b.perf1y.compareTo(a.perf1y));
+
+      final results = candidates.take(50).map((e) => _ScreenerResult(
+            symbol:         e.symbol,
+            name:           e.name,
+            price:          e.price,
+            performancePct: e.perf1y,
+          )).toList();
 
       if (mounted) {
         setState(() {
-          _results  = candidates.take(50).toList();
-          _loading  = false;
-          _progress = 1.0;
+          _results     = results;
+          _loading     = false;
+          _generatedAt = data.generatedAt;
         });
         _saveToMemory();
       }
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
+      if (mounted) {
+        setState(() { _error = e.toString(); _loading = false; });
+      }
     }
   }
 
@@ -274,7 +221,6 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
       maxChildSize: 0.97,
       builder: (ctx, scrollController) => Column(
         children: [
-          // ── Fixed: drag handle ──────────────────────────────────────────────
           Center(
             child: Container(
               margin: const EdgeInsets.only(top: 8, bottom: 4),
@@ -285,7 +231,6 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
               ),
             ),
           ),
-          // ── Fixed: title bar ────────────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -311,20 +256,21 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
           ),
           const Divider(height: 1),
 
-          // ── Scrollable: filters + results share ONE scroll view ─────────────
           Expanded(
             child: CustomScrollView(
               controller: scrollController,
               slivers: [
-                // Filter controls — scroll up out of view when reading results
                 SliverToBoxAdapter(
                   child: _buildFilters(l10n, colorScheme),
                 ),
-                const SliverToBoxAdapter(
-                    child: Divider(height: 1)),
+                const SliverToBoxAdapter(child: Divider(height: 1)),
 
-                // Results / loading / hint
                 if (_loading)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: const Center(child: CircularProgressIndicator()),
+                  )
+                else if (_error != null)
                   SliverFillRemaining(
                     hasScrollBody: false,
                     child: Center(
@@ -333,26 +279,13 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            LinearProgressIndicator(
-                                value: _progress == 0 ? null : _progress),
+                            const Icon(Icons.cloud_off, size: 48),
                             const SizedBox(height: 12),
-                            Text(l10n.screenerLoading),
-                            if (_progressText.isNotEmpty) ...[
-                              const SizedBox(height: 4),
-                              Text(_progressText,
-                                  style: const TextStyle(fontSize: 12)),
-                            ],
+                            Text(l10n.errorLoading,
+                                style: const TextStyle(color: Colors.red)),
                           ],
                         ),
                       ),
-                    ),
-                  )
-                else if (_error != null)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(
-                      child: Text(l10n.errorLoading,
-                          style: const TextStyle(color: Colors.red)),
                     ),
                   )
                 else if (!_searched)
@@ -379,20 +312,44 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
               ],
             ),
           ),
-          // ── Fixed: disclaimer ────────────────────────────────────────────────
+
+          // Footer: disclaimer + data freshness
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: Text(
-              l10n.screenerDisclaimer,
-              style: TextStyle(
-                fontSize: 10,
-                color: colorScheme.onSurfaceVariant.withAlpha(150),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.screenerDisclaimer,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: colorScheme.onSurfaceVariant.withAlpha(150),
+                  ),
+                ),
+                if (_generatedAt.isNotEmpty)
+                  Text(
+                    _formatGeneratedAt(_generatedAt),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: colorScheme.onSurfaceVariant.withAlpha(120),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatGeneratedAt(String iso) {
+    try {
+      final dt  = DateTime.parse(iso).toLocal();
+      final fmt = DateFormat('dd.MM.yyyy HH:mm');
+      return 'Daten vom ${fmt.format(dt)}';
+    } catch (_) {
+      return '';
+    }
   }
 
   Widget _buildFilters(AppLocalizations l10n, ColorScheme colorScheme) {
@@ -407,8 +364,7 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
           InputDecorator(
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<int>(
@@ -475,8 +431,7 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
                 child: Text(
                   _logicHint(l10n),
                   style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurfaceVariant),
+                      fontSize: 12, color: colorScheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -485,27 +440,19 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
           Text(l10n.screenerUniverseLabel,
               style: const TextStyle(fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
-          SegmentedButton<int>(
-            segments: const [
-              ButtonSegment(value: 0, label: Text('S&P 500')),
-              ButtonSegment(value: 1, label: Text('+NASDAQ 100')),
-              ButtonSegment(value: 2, label: Text('+Erweitert')),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: [
+              for (final id in _kIndexLabels.keys)
+                _buildIndexChip(id, _kIndexLabels[id]!),
             ],
-            selected: {_universeMode},
-            onSelectionChanged: _loading
-                ? null
-                : (s) {
-                    setState(() => _universeMode = s.first);
-                    _saveToMemory();
-                  },
-            style: ButtonStyle(
-              textStyle: WidgetStateProperty.all(
-                  const TextStyle(fontSize: 12)),
-            ),
           ),
           const SizedBox(height: 4),
           Text(
-            _universeHint(l10n),
+            _selectedIndices.isEmpty
+                ? l10n.screenerUniverseNone
+                : l10n.screenerUniverseCount(_totalCount()),
             style: TextStyle(
                 fontSize: 12, color: colorScheme.onSurfaceVariant),
           ),
@@ -515,14 +462,20 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
             child: FilledButton.icon(
               icon: const Icon(Icons.search),
               label: Text(l10n.screenerSearch),
-              onPressed:
-                  _selectedPerf != null && !_loading ? _search : null,
+              onPressed: _selectedPerf != null &&
+                      !_loading &&
+                      _selectedIndices.isNotEmpty
+                  ? _search
+                  : null,
             ),
           ),
         ],
       ),
     );
   }
+
+  int _totalCount() => _selectedIndices.fold(
+      0, (sum, id) => sum + (_kIndexCounts[id] ?? 0));
 
   String _logicHint(AppLocalizations l10n) {
     if (_kgvController.text.trim().isEmpty) return l10n.screenerLogicHintNoKgv;
@@ -531,14 +484,24 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
     return l10n.screenerLogicHintOr;
   }
 
-  String _universeHint(AppLocalizations l10n) {
-    switch (_universeMode) {
-      case 1:  return l10n.screenerUniverseNasdaq;
-      case 2:  return l10n.screenerUniverseExtended;
-      default: return l10n.screenerUniverseSp;
-    }
+  Widget _buildIndexChip(int id, String label) {
+    return FilterChip(
+      label: Text(label),
+      selected: _selectedIndices.contains(id),
+      onSelected: _loading
+          ? null
+          : (v) {
+              setState(() {
+                if (v) {
+                  _selectedIndices.add(id);
+                } else {
+                  _selectedIndices.remove(id);
+                }
+              });
+              _saveToMemory();
+            },
+    );
   }
-
 }
 
 class _ResultTile extends StatelessWidget {
@@ -567,16 +530,16 @@ class _ResultTile extends StatelessWidget {
               '${result.performancePct >= 0 ? '+' : ''}${result.performancePct.toStringAsFixed(1)}%',
               style: TextStyle(
                 fontSize: 11,
-                color: result.performancePct >= 0
-                    ? Colors.green
-                    : Colors.red,
+                color: result.performancePct >= 0 ? Colors.green : Colors.red,
               ),
             ),
           ],
         ),
       ),
-      title: Text(fmt.format(result.price),
-          style: const TextStyle(fontWeight: FontWeight.w500)),
+      title: Text(
+        result.price > 0 ? fmt.format(result.price) : '—',
+        style: const TextStyle(fontWeight: FontWeight.w500),
+      ),
       subtitle: Text(
         result.name,
         maxLines: 1,
@@ -596,8 +559,7 @@ class _ResultTile extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(
-                inWl ? Icons.bookmark : Icons.bookmark_border),
+            icon: Icon(inWl ? Icons.bookmark : Icons.bookmark_border),
             tooltip: 'Watchlist',
             visualDensity: VisualDensity.compact,
             onPressed: () => context
