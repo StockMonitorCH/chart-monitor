@@ -9,6 +9,8 @@ jobs:
   update-names:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
