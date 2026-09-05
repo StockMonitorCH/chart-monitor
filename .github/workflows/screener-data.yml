@@ -33,7 +33,7 @@ jobs:
         with:
           server:     ${{ secrets.CYON_FTP_HOST }}
           username:   ${{ secrets.CYON_FTP_USER }}
-          password:   ${{ secrets.CYON_FTP_PASS }}
+          password:   ${{ secrets.CYON_FTP_PASSWORD }}
           protocol:   ftps
           local-dir:  ./output/
           server-dir: /public_html/stock-monitor.ch/data/
