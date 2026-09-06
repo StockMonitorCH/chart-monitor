@@ -64,8 +64,9 @@ def fetch_us_stock(symbol: str, names: dict) -> dict | None:
 
         q     = _fh_get('quote', {'symbol': symbol})
         price = float(q.get('c', 0) or 0)
-        if price > 0:
-            price = round(price, 2)
+        if price == 0:
+            return None
+        price = round(price, 2)
 
         entry: dict = {
             's': symbol,
