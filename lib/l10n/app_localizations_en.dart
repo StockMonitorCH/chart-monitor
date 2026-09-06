@@ -496,9 +496,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get screenerInfoBody =>
-      'The stock screener searches stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\nMultiple indices can be selected simultaneously:\n• S&P 500: ~503 US stocks (USD)\n• NASDAQ 100: ~100 US tech stocks (USD)\n• Extended: ~200 popular US growth stocks (USD)\n• DAX 40: ~40 German stocks on XETRA (EUR)\n• SMI 20: ~21 Swiss stocks on SIX (CHF)\n\nNot investment advice. Data: Yahoo Finance.';
+      'The stock screener searches stocks by performance and optional P/E ratio.\n\n📅 Time Period\nPerformance is calculated over 12 months (1 year).\n\n📊 Performance Levels\nEach level covers a 10 percentage point range:\n• 10% → Price gain 10 – 19%\n• 20% → Price gain 20 – 29%\n• …\n• 90% → Price gain 90 – 99%\n• 100+% → Price gain ≥ 100%\n\n📈 P/E Ratio (Price-to-Earnings)\nTrailing P/E ratio. A lower P/E may indicate attractive valuation.\n\n🔗 Logic\n• AND: Both criteria (performance and P/E) must be met.\n• OR: At least one criterion must be met.\n• Neither: Only the performance filter is applied.\n\n🌐 Universe\nMultiple indices can be selected simultaneously:\n• S&P 500: ~486 US stocks (USD)\n• Nasdaq 100: ~100 US tech stocks (USD)\n• Nasdaq Interesting: ~80 growth stocks (USD)\n• Russell 2000: ~513 US small caps (USD)\n• NYSE 200: ~155 US stocks (USD)\n• DAX 40: ~39 German stocks – XETRA (EUR)\n• SMI 20: ~21 Swiss stocks – SIX (CHF)\n• FTSE 100: ~85 UK stocks – LSE (GBP)\n\nData updated daily. Not investment advice.';
 
   @override
-  String get screenerDisclaimer =>
-      'Not investment advice. Data: Yahoo Finance.';
+  String get screenerDisclaimer => 'Not investment advice. Data updated daily.';
 }
