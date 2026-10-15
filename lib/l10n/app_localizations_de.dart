@@ -502,4 +502,7 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get screenerDisclaimer =>
       'Keine Anlageberatung. Daten täglich aktualisiert.';
+
+  @override
+  String get keyboardDone => 'Fertig';
 }

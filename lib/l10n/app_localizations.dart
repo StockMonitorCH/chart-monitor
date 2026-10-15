@@ -1033,6 +1033,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not investment advice. Data updated daily.'**
   String get screenerDisclaimer;
+
+  /// No description provided for @keyboardDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get keyboardDone;
 }
 
 class _AppLocalizationsDelegate

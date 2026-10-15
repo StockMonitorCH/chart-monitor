@@ -500,4 +500,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get screenerDisclaimer => 'Not investment advice. Data updated daily.';
+
+  @override
+  String get keyboardDone => 'Done';
 }

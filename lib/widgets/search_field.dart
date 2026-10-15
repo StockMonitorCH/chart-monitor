@@ -32,6 +32,7 @@ class _SearchFieldState extends State<SearchField> {
   List<StockSearchResult> _results = [];
   bool _loading = false;
   Timer? _debounce;
+  int _searchId = 0;
   OverlayEntry? _overlay;
   final _layerLink = LayerLink();
 
@@ -70,17 +71,19 @@ class _SearchFieldState extends State<SearchField> {
   }
 
   Future<void> _search(String query) async {
+    final id = ++_searchId;
     setState(() => _loading = true);
     try {
       final results = await _service.search(query);
-      if (!mounted) return;
+      // Veraltete Antwort (neuere Suche oder Auswahl inzwischen erfolgt)
+      if (!mounted || id != _searchId) return;
       setState(() {
         _results = results;
         _loading = false;
       });
-      if (_results.isNotEmpty) _showOverlay();
+      if (_results.isNotEmpty && _focus.hasFocus) _showOverlay();
     } catch (_) {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && id == _searchId) setState(() => _loading = false);
     }
   }
 
@@ -96,6 +99,9 @@ class _SearchFieldState extends State<SearchField> {
   }
 
   void _select(StockSearchResult result) {
+    _debounce?.cancel();
+    _searchId++;
+    if (_loading) setState(() => _loading = false);
     _controller.text = result.symbol;
     _removeOverlay();
     _focus.unfocus();

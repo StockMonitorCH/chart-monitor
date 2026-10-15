@@ -5,6 +5,7 @@ import 'l10n/app_localizations.dart';
 import 'models/chart_state.dart';
 import 'screens/home_screen.dart';
 import 'services/alarm_service.dart';
+import 'widgets/keyboard_done_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +43,7 @@ class ChartMonitorApp extends StatelessWidget {
         colorSchemeSeed: const Color(0xFF1976D2),
         brightness: Brightness.dark,
       ),
+      builder: (context, child) => KeyboardDoneBar(child: child!),
       home: const HomeScreen(),
     );
   }
