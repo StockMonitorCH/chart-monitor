@@ -1,0 +1,8 @@
+UNTERTITEL (App-Informationen, max. 30):
+Aktiencharts mit Indikatoren
+
+WERBETEXT (max. 170):
+Aktien und ETFs im Blick: Charts mit Indikatoren, Vergleich zweier Werte, Screener, Analysten-Rating und Watchlist – kostenlos, ohne Werbung und ohne Anmeldung.
+
+SUCHBEGRIFFE (max. 100, Komma, keine Leerzeichen):
+Aktien,Börse,ETF,Watchlist,Kurs,Kursalarm,Analysten,Screener,Rating,Indizes,Vergleich,Dividenden

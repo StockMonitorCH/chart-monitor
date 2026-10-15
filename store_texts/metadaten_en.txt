@@ -1,0 +1,8 @@
+SUBTITLE (App Information, max. 30):
+Stock Charts & Indicators
+
+PROMOTIONAL TEXT (max. 170):
+Stocks and ETFs at a glance: charts with indicators, side-by-side comparison, screener, analyst ratings and watchlist – free, no ads, no sign-up.
+
+KEYWORDS (max. 100, comma-separated, no spaces):
+stocks,market,ETF,watchlist,price,alert,analyst,screener,rating,indices,compare,dividend,ticker

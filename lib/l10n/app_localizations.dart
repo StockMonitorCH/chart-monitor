@@ -1034,6 +1034,18 @@ abstract class AppLocalizations {
   /// **'Not investment advice. Data updated daily.'**
   String get screenerDisclaimer;
 
+  /// No description provided for @screenerNasdaqInteresting.
+  ///
+  /// In en, this message translates to:
+  /// **'Nasdaq Interesting'**
+  String get screenerNasdaqInteresting;
+
+  /// No description provided for @screenerDataAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Data as of {date}'**
+  String screenerDataAsOf(String date);
+
   /// No description provided for @keyboardDone.
   ///
   /// In en, this message translates to:

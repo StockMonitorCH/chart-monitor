@@ -42,7 +42,7 @@ android {
     defaultConfig {
         applicationId = "ch.stockmonitor.chart_monitor"
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }

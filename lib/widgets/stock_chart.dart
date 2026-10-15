@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 import '../models/stock_data.dart';
 
 class StockChart extends StatelessWidget {
@@ -539,7 +540,7 @@ class _IndicatorLegend extends StatelessWidget {
     if (showTrend) items.add(_LegendItem('Trend', Colors.amber.shade400, dashed: true));
     if (showTarget && targetPrice != null) {
       items.add(_LegendItem(
-        'Ziel ${targetPrice!.toStringAsFixed(2)}',
+        '${AppLocalizations.of(context)!.indicatorTarget} ${targetPrice!.toStringAsFixed(2)}',
         Colors.green.shade600,
         dashed: true,
       ));

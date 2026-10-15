@@ -502,5 +502,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get screenerDisclaimer => 'Not investment advice. Data updated daily.';
 
   @override
+  String get screenerNasdaqInteresting => 'Nasdaq Interesting';
+
+  @override
+  String screenerDataAsOf(String date) {
+    return 'Data as of $date';
+  }
+
+  @override
   String get keyboardDone => 'Done';
 }

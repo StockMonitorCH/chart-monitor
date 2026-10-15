@@ -13,7 +13,7 @@ const _kIndexCounts = {0: 486, 1: 100, 2: 80, 3: 513, 4: 155, 5: 39, 6: 21, 7: 8
 const _kIndexLabels = {
   0: 'S&P 500',
   1: 'Nasdaq 100',
-  2: 'Nasdaq Interessant',
+  2: 'Nasdaq Interessant', // localized at display time
   3: 'Russell 2000',
   4: 'NYSE 200',
   5: 'DAX 40',
@@ -346,7 +346,7 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
     try {
       final dt  = DateTime.parse(iso).toLocal();
       final fmt = DateFormat('dd.MM.yyyy HH:mm');
-      return 'Daten vom ${fmt.format(dt)}';
+      return AppLocalizations.of(context)!.screenerDataAsOf(fmt.format(dt));
     } catch (_) {
       return '';
     }
@@ -445,7 +445,11 @@ class _StockScreenerSheetState extends State<StockScreenerSheet> {
             runSpacing: 4,
             children: [
               for (final id in _kIndexLabels.keys)
-                _buildIndexChip(id, _kIndexLabels[id]!),
+                _buildIndexChip(
+                    id,
+                    id == 2
+                        ? l10n.screenerNasdaqInteresting
+                        : _kIndexLabels[id]!),
             ],
           ),
           const SizedBox(height: 4),

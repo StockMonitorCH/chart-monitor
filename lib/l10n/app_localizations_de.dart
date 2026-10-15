@@ -504,5 +504,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Keine Anlageberatung. Daten täglich aktualisiert.';
 
   @override
+  String get screenerNasdaqInteresting => 'Nasdaq Interessant';
+
+  @override
+  String screenerDataAsOf(String date) {
+    return 'Daten vom $date';
+  }
+
+  @override
   String get keyboardDone => 'Fertig';
 }

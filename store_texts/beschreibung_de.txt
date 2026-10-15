@@ -1,0 +1,50 @@
+Chart Monitor zeigt dir Aktien, ETFs und Indizes übersichtlich auf einen Blick – mit Charts, technischen Indikatoren, Analystenmeinungen und einem eigenen Screener. Kostenlos, ohne Werbung und ohne Anmeldung.
+
+CHARTS
+• Linien- und Kerzenchart (Candlestick), pro Aktie umschaltbar
+• Zwei Aktien direkt vergleichen – prozentual normiert in einem Chart
+• Zeiträume von 1 Tag bis Max, oder eigener Zeitraum
+• Antippen oder ziehen zeigt Kurs und Datum genau an
+
+TECHNISCHE INDIKATOREN
+• Gleitende Durchschnitte MA20, MA50 und MA200
+• Bollinger-Bänder
+• Trendlinie über den gewählten Zeitraum
+• Kursziel der Analysten als Linie im Chart
+• Deine Einstellungen bleiben gespeichert
+
+AKTIEN-ANALYSE
+• Gesamtrating mit Sternen für Performance, Risiko, Fundamentaldaten, Technik und Trading-Eignung
+• Analystenempfehlungen von „Stark kaufen“ bis „Stark verkaufen“
+
+FIRMENINFOS
+• Sektor, Branche, Land, CEO, Mitarbeitende, Marktkapitalisierung
+• Bewertung: KGV, EPS, Beta, 52-Wochen-Hoch und -Tief, nächster Quartalstermin
+• Dividenden: Dividende pro Aktie, Rendite, Ex-Datum und Dividendenhistorie
+• Aktuelle News und Firmenbeschreibung
+• Bei ETFs: grösste Positionen und Sektorgewichtung
+
+AKTIEN-SCREENER
+• Aktien nach Performance und KGV filtern
+• Universen wie S&P 500, Nasdaq 100, Russell 2000, NYSE, DAX 40, SMI 20 und FTSE 100
+
+WATCHLIST
+• Lieblingswerte mit einem Tipp speichern
+• Performance je Zeitraum, Sektor-Kennzeichnung und verschiedene Sortierungen
+• Stop-Loss und Zielkurs pro Aktie – beim Öffnen der Watchlist wirst du benachrichtigt, wenn ein Wert erreicht ist
+• Eigene Notizen, auf Wunsch mit einer Aktie verknüpft
+
+INDIZES
+• Wichtige Weltindizes im Überblick
+• Indexvergleich als Balkendiagramm, auf Wunsch mit deiner Watchlist
+
+FX RECHNER
+• Währungsrechner mit aktuellen Kursen
+• Zins- und Zinseszinsrechner mit Ein- und Auszahlungen
+
+ALLGEMEIN
+• Hell- und Dunkelmodus (folgt der Systemeinstellung)
+• Deutsch und Englisch
+• Keine persönlichen Daten, kein Konto, keine Werbung
+
+Kursdaten stammen von Yahoo Finance und können verzögert sein. Chart Monitor dient der Information und stellt keine Anlageberatung dar.

@@ -38,3 +38,7 @@ output/
 # Python cache
 __pycache__/
 *.pyc
+
+# iOS-Builds und lokale Claude-Arbeitsdaten
+*.ipa
+.claude/

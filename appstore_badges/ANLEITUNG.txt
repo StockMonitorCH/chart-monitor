@@ -1,0 +1,28 @@
+Offizielle "Laden im App Store" / "Download on the App Store" Badges
+Quelle: Apple Marketing Tools (toolbox.marketingtools.apple.com), Stand Oktober 2026
+
+App-Link (leitet automatisch in den Store des Besuchers):
+https://apps.apple.com/app/id6819226275
+
+Dateien:
+- *.svg  -> beste Qualität fürs Web (scharf in jeder Grösse)
+- *.png  -> 599 x 200 px, transparenter Hintergrund (falls die Seite kein SVG annimmt)
+- black  -> Standard-Variante (Apple empfiehlt Schwarz)
+- white  -> Alternative für dunkle Hintergründe
+
+Regeln von Apple:
+- Badge nicht verändern (keine Farben, kein Zuschneiden, kein Text darauf)
+- Mindesthöhe 40 px am Bildschirm, ca. 48 px ist eine gute Grösse
+- Rundherum etwas Abstand lassen (mind. 1/4 der Badge-Höhe)
+
+HTML Deutsch:
+<a href="https://apps.apple.com/app/id6819226275" target="_blank" rel="noopener">
+  <img src="app-store-badge-de-de-black.svg" alt="Laden im App Store" style="height: 48px;">
+</a>
+
+HTML Englisch:
+<a href="https://apps.apple.com/app/id6819226275" target="_blank" rel="noopener">
+  <img src="app-store-badge-en-us-black.svg" alt="Download on the App Store" style="height: 48px;">
+</a>
+
+(Den Pfad bei src= an den Ort anpassen, wo die Datei auf der Homepage liegt.)

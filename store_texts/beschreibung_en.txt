@@ -1,0 +1,50 @@
+Chart Monitor gives you a clear view of stocks, ETFs and indices – with charts, technical indicators, analyst ratings and a built-in screener. Free, no ads, no sign-up.
+
+CHARTS
+• Line and candlestick charts, switchable per stock
+• Compare two stocks directly – percentage-normalized in one chart
+• Time ranges from 1 day to max, or your own custom range
+• Tap or drag to see the exact price and date
+
+TECHNICAL INDICATORS
+• Moving averages MA20, MA50 and MA200
+• Bollinger Bands
+• Trend line over the selected period
+• Analyst price target as a line in the chart
+• Your settings are remembered
+
+STOCK ANALYSIS
+• Overall star rating for performance, risk, fundamentals, technicals and trading suitability
+• Analyst recommendations from "Strong Buy" to "Strong Sell"
+
+COMPANY DETAILS
+• Sector, industry, country, CEO, employees, market cap
+• Valuation: P/E, EPS, beta, 52-week high and low, next earnings date
+• Dividends: dividend per share, yield, ex-date and dividend history
+• Latest news and company description
+• For ETFs: top holdings and sector weighting
+
+STOCK SCREENER
+• Filter stocks by performance and P/E ratio
+• Universes such as S&P 500, Nasdaq 100, Russell 2000, NYSE, DAX 40, SMI 20 and FTSE 100
+
+WATCHLIST
+• Save your favorites with one tap
+• Performance per period, sector badges and several sort options
+• Stop-loss and target price per stock – you are notified when you open the watchlist and a level has been reached
+• Personal notes, optionally linked to a stock
+
+INDICES
+• Major world indices at a glance
+• Index comparison as a bar chart, optionally including your watchlist
+
+FX CALCULATOR
+• Currency converter with live rates
+• Interest and compound interest calculator with deposits and withdrawals
+
+GENERAL
+• Light and dark mode (follows system setting)
+• English and German
+• No personal data, no account, no ads
+
+Price data is provided by Yahoo Finance and may be delayed. Chart Monitor is for informational purposes only and does not constitute investment advice.

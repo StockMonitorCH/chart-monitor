@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../l10n/app_localizations.dart';
@@ -91,59 +92,63 @@ class InfoDialog extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(),
-            _Section(
-              icon: Icons.system_update_outlined,
-              title: l10n.checkForUpdates,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.system_update_outlined, size: 16),
-                label: Text(l10n.checkForUpdates,
-                    style: const TextStyle(fontSize: 13)),
-                onPressed: onCheckUpdate != null
-                    ? () {
-                        Navigator.pop(context);
-                        onCheckUpdate!();
-                      }
-                    : null,
-              ),
-            ),
-            const Divider(),
-            _Section(
-              icon: Icons.volunteer_activism,
-              title: l10n.infoDonate,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.infoDonateDesc,
+            if (onCheckUpdate != null) ...[
+              const Divider(),
+              _Section(
+                icon: Icons.system_update_outlined,
+                title: l10n.checkForUpdates,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.system_update_outlined, size: 16),
+                  label: Text(l10n.checkForUpdates,
                       style: const TextStyle(fontSize: 13)),
-                  const SizedBox(height: 10),
-                  Center(
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/twint_qr.png',
-                          width: 120,
-                          height: 120,
-                          fit: BoxFit.contain,
-                          errorBuilder: (ctx, err, stack) =>
-                              const SizedBox.shrink(),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text('TWINT',
-                            style: TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _LinkButton(
-                    label: l10n.donatePaypal,
-                    url: 'https://paypal.me/StockMonitor',
-                    icon: Icons.payment,
-                  ),
-                ],
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onCheckUpdate!();
+                  },
+                ),
               ),
-            ),
+            ],
+            // App Store guideline 3.1.1: donations on iOS would have to use
+            // In-App Purchase, so the section is Android-only.
+            if (!Platform.isIOS) ...[
+              const Divider(),
+              _Section(
+                icon: Icons.volunteer_activism,
+                title: l10n.infoDonate,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.infoDonateDesc,
+                        style: const TextStyle(fontSize: 13)),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/twint_qr.png',
+                            width: 120,
+                            height: 120,
+                            fit: BoxFit.contain,
+                            errorBuilder: (ctx, err, stack) =>
+                                const SizedBox.shrink(),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text('TWINT',
+                              style: TextStyle(
+                                  fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _LinkButton(
+                      label: l10n.donatePaypal,
+                      url: 'https://paypal.me/StockMonitor',
+                      icon: Icons.payment,
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const Divider(),
             _Section(
               icon: Icons.mail_outline,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -41,7 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadVersion();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _checkPrivacyConsent());
-    Future.delayed(const Duration(seconds: 3), _checkForUpdate);
+    // APK self-update only on Android; iOS updates come via the App Store.
+    if (!Platform.isIOS) {
+      Future.delayed(const Duration(seconds: 3), _checkForUpdate);
+    }
   }
 
   Future<void> _loadVersion() async {
@@ -135,8 +139,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chart M',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Semantics(
+          label: 'Chart Monitor',
+          child: Image.asset('assets/app_logo.png', height: 40),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.manage_search),
@@ -172,7 +178,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () => InfoDialog.show(
               context,
               version: _version,
-              onCheckUpdate: () => _checkForUpdate(showUpToDate: true),
+              onCheckUpdate: Platform.isIOS
+                  ? null
+                  : () => _checkForUpdate(showUpToDate: true),
             ),
           ),
         ],

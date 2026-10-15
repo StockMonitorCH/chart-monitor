@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,11 @@ const _kTaskName = 'stockAlarmCheck';
 const _kUniqueTag = 'cmAlarmPeriodic';
 const _kLastNotif = 'cm_last_notif_';
 const _kCooldownSecs = 3600; // 1 h between repeated notifications per symbol
+
+// Runs without a BuildContext (also in the background isolate), so the
+// device locale is used instead of AppLocalizations.
+String _t(String de, String en) =>
+    Platform.localeName.startsWith('de') ? de : en;
 
 // ── Background entry point ────────────────────────────────────────────────────
 
@@ -39,8 +45,7 @@ Future<void> _runCheck() async {
   if (entries.isEmpty) return;
 
   final notif = FlutterLocalNotificationsPlugin();
-  const init = AndroidInitializationSettings('@mipmap/ic_launcher');
-  await notif.initialize(const InitializationSettings(android: init));
+  await notif.initialize(_initSettings);
 
   final nowSec = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -55,13 +60,13 @@ Future<void> _runCheck() async {
     if (e.stopLoss != null && price <= e.stopLoss!) {
       await _notify(notif, '${e.symbol}_sl',
           'Stop-Loss: ${e.symbol}',
-          'Kurs ${price.toStringAsFixed(2)} ≤ SL ${e.stopLoss!.toStringAsFixed(2)}');
+          '${_t('Kurs', 'Price')} ${price.toStringAsFixed(2)} ≤ SL ${e.stopLoss!.toStringAsFixed(2)}');
       fired = true;
     }
     if (e.targetPrice != null && price >= e.targetPrice!) {
       await _notify(notif, '${e.symbol}_tp',
-          'Zielkurs: ${e.symbol}',
-          'Kurs ${price.toStringAsFixed(2)} ≥ Ziel ${e.targetPrice!.toStringAsFixed(2)}');
+          '${_t('Zielkurs', 'Target price')}: ${e.symbol}',
+          '${_t('Kurs', 'Price')} ${price.toStringAsFixed(2)} ≥ ${_t('Ziel', 'Target')} ${e.targetPrice!.toStringAsFixed(2)}');
       fired = true;
     }
     if (fired) await prefs.setInt('$_kLastNotif${e.symbol}', nowSec);
@@ -93,17 +98,29 @@ Future<void> _notify(FlutterLocalNotificationsPlugin notif,
     tag.hashCode.abs() % 100000,
     title,
     body,
-    const NotificationDetails(
+    NotificationDetails(
       android: AndroidNotificationDetails(
         'stock_alarms',
-        'Kursalarme',
-        channelDescription: 'Stop-Loss und Zielkurs Benachrichtigungen',
+        _t('Kursalarme', 'Price alerts'),
+        channelDescription: _t('Stop-Loss und Zielkurs Benachrichtigungen',
+            'Stop-loss and target price notifications'),
         importance: Importance.high,
         priority: Priority.high,
       ),
+      iOS: const DarwinNotificationDetails(),
     ),
   );
 }
+
+const _initSettings = InitializationSettings(
+  android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+  // Permission is requested explicitly when the first alarm is set.
+  iOS: DarwinInitializationSettings(
+    requestAlertPermission: false,
+    requestBadgePermission: false,
+    requestSoundPermission: false,
+  ),
+);
 
 // Parses "symbol|name|sector|stopLoss|targetPrice" — backward-compatible with "symbol|name"
 ({String symbol, String name, double? stopLoss, double? targetPrice, bool hasAlarm})
@@ -130,22 +147,32 @@ class AlarmService {
     if (_initialized) return;
     _initialized = true;
 
-    await Workmanager().initialize(alarmCallbackDispatcher);
+    // iOS has no periodic background work like Android's WorkManager –
+    // alarms are only checked while the app is open (see checkNow).
+    if (!Platform.isIOS) {
+      await Workmanager().initialize(alarmCallbackDispatcher);
+    }
 
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    await _notif.initialize(const InitializationSettings(android: androidInit));
+    await _notif.initialize(_initSettings);
 
     await _notif
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(const AndroidNotificationChannel(
+        ?.createNotificationChannel(AndroidNotificationChannel(
           'stock_alarms',
-          'Kursalarme',
-          description: 'Stop-Loss und Zielkurs Benachrichtigungen',
+          _t('Kursalarme', 'Price alerts'),
+          description: _t('Stop-Loss und Zielkurs Benachrichtigungen',
+              'Stop-loss and target price notifications'),
           importance: Importance.high,
         ));
   }
 
   static Future<bool> requestPermission() async {
+    if (Platform.isIOS) {
+      final r = await _notif
+          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: false, sound: true);
+      return r ?? false;
+    }
     final r = await _notif
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.requestNotificationsPermission();
@@ -154,6 +181,7 @@ class AlarmService {
 
   /// Schedules or cancels the periodic background check.
   static Future<void> updateSchedule(bool hasAlarms) async {
+    if (Platform.isIOS) return;
     if (hasAlarms) {
       await Workmanager().registerPeriodicTask(
         _kUniqueTag,
@@ -190,13 +218,13 @@ class AlarmService {
       if (e.stopLoss != null && price <= e.stopLoss!) {
         await _notify(_notif, '${e.symbol}_sl',
             'Stop-Loss: ${e.symbol}',
-            'Kurs ${price.toStringAsFixed(2)} ≤ SL ${e.stopLoss!.toStringAsFixed(2)}');
+            '${_t('Kurs', 'Price')} ${price.toStringAsFixed(2)} ≤ SL ${e.stopLoss!.toStringAsFixed(2)}');
         fired = true;
       }
       if (e.targetPrice != null && price >= e.targetPrice!) {
         await _notify(_notif, '${e.symbol}_tp',
-            'Zielkurs: ${e.symbol}',
-            'Kurs ${price.toStringAsFixed(2)} ≥ Ziel ${e.targetPrice!.toStringAsFixed(2)}');
+            '${_t('Zielkurs', 'Target price')}: ${e.symbol}',
+            '${_t('Kurs', 'Price')} ${price.toStringAsFixed(2)} ≥ ${_t('Ziel', 'Target')} ${e.targetPrice!.toStringAsFixed(2)}');
         fired = true;
       }
       if (fired) await prefs.setInt('$_kLastNotif${e.symbol}', nowSec);
