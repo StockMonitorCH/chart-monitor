@@ -40,6 +40,7 @@ class _CandlestickChartWidgetState extends State<CandlestickChartWidget> {
           index: _hoveredIndex,
           range: widget.range,
           cs: cs,
+          locale: Localizations.localeOf(context).toString(),
         ),
         Expanded(
           child: GestureDetector(
@@ -54,6 +55,7 @@ class _CandlestickChartWidgetState extends State<CandlestickChartWidget> {
                 range: widget.range,
                 hoveredIndex: _hoveredIndex,
                 indicators: widget.indicators,
+                locale: Localizations.localeOf(context).toString(),
                 bullColor: Colors.green.shade400,
                 bearColor: Colors.red.shade400,
                 gridColor: cs.onSurface.withAlpha(30),
@@ -87,8 +89,9 @@ class _InfoBar extends StatelessWidget {
   final int? index;
   final TimeRange range;
   final ColorScheme cs;
+  final String locale;
 
-  const _InfoBar({required this.data, required this.index, required this.range, required this.cs});
+  const _InfoBar({required this.data, required this.index, required this.range, required this.cs, required this.locale});
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +99,11 @@ class _InfoBar extends StatelessWidget {
       return const SizedBox(height: 22);
     }
     final p = data[index!];
-    final fmt = range.isIntraday ? DateFormat('HH:mm') : DateFormat('dd.MM.yy');
+    final fmt = range == TimeRange.oneDay
+        ? DateFormat('HH:mm', locale)
+        : range == TimeRange.oneWeek
+            ? DateFormat('EEE HH:mm', locale)
+            : DateFormat('dd.MM.yy', locale);
     final isBull = p.close >= (p.open ?? p.close);
     final color = isBull ? Colors.green.shade400 : Colors.red.shade400;
 
@@ -145,6 +152,7 @@ class _CandlestickPainter extends CustomPainter {
   final TimeRange range;
   final int? hoveredIndex;
   final ChartIndicators indicators;
+  final String locale;
   final Color bullColor;
   final Color bearColor;
   final Color gridColor;
@@ -157,6 +165,7 @@ class _CandlestickPainter extends CustomPainter {
     required this.range,
     required this.hoveredIndex,
     required this.indicators,
+    required this.locale,
     required this.bullColor,
     required this.bearColor,
     required this.gridColor,
@@ -218,8 +227,14 @@ class _CandlestickPainter extends CustomPainter {
     }
 
     // ── X labels ──────────────────────────────────────────────────────────────
-    final labelIndices = _labelPositions(data.length, 4);
-    final dateFmt = range.isIntraday ? DateFormat('HH:mm') : DateFormat('dd.MM.');
+    final labelIndices = range == TimeRange.oneWeek
+        ? _dayStartIndices(data)
+        : _labelPositions(data.length, 4);
+    final dateFmt = range == TimeRange.oneDay
+        ? DateFormat('HH:mm')
+        : range == TimeRange.oneWeek
+            ? DateFormat('EEE', locale)
+            : DateFormat('dd.MM.');
     for (final idx in labelIndices) {
       final x = xPos(idx);
       _drawText(canvas, dateFmt.format(data[idx].time),
@@ -392,6 +407,19 @@ class _CandlestickPainter extends CustomPainter {
     }
   }
 
+  Set<int> _dayStartIndices(List<ChartDataPoint> data) {
+    final result = <int>{};
+    String? lastDay;
+    for (var i = 0; i < data.length; i++) {
+      final day = DateFormat('yyyyMMdd').format(data[i].time);
+      if (day != lastDay) {
+        result.add(i);
+        lastDay = day;
+      }
+    }
+    return result;
+  }
+
   Set<int> _labelPositions(int count, int n) {
     if (count <= n) return {for (var i = 0; i < count - 1; i++) i};
     final maxIdx = (count * 0.90).round().clamp(0, count - 2);
@@ -431,6 +459,7 @@ class _CandlestickPainter extends CustomPainter {
       old.data != data ||
       old.maWarmupData != maWarmupData ||
       old.hoveredIndex != hoveredIndex ||
+      old.locale != locale ||
       old.indicators.showMa20 != indicators.showMa20 ||
       old.indicators.showMa50 != indicators.showMa50 ||
       old.indicators.showMa200 != indicators.showMa200 ||

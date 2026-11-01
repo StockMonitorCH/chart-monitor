@@ -40,16 +40,26 @@ class ScreenerDataService {
   static const _prefTimeKey = 'screener_data_time_v1';
   static const _maxAge      = Duration(hours: 25);
 
-  // Map from chip index (0-7) to JSON key
+  // Map from chip index (0-17) to JSON key
   static const _keyMap = {
-    0: 'sp500',
-    1: 'nasdaq100',
-    2: 'nasdaq_extra',
-    3: 'russell1000',
-    4: 'nyse200',
-    5: 'dax40',
-    6: 'smi20',
-    7: 'ftse100',
+    0:  'sp500',
+    1:  'nasdaq100',
+    2:  'nasdaq_extra',
+    3:  'russell1000',
+    4:  'nyse200',
+    5:  'dax40',
+    6:  'smi20',
+    7:  'ftse100',
+    8:  'cac40',
+    9:  'nikkei225',
+    10: 'tsx',
+    11: 'asx200',
+    12: 'sti',
+    13: 'nifty50',
+    14: 'hangseng',
+    15: 'ewz',
+    16: 'scandinavia',
+    17: 'osteuropa',
   };
 
   ScreenerData? _memCache;
@@ -103,7 +113,7 @@ class ScreenerDataService {
   List<ScreenerEntry> entriesForIndices(Set<int> ids, ScreenerData data) {
     final seen   = <String>{};
     final result = <ScreenerEntry>[];
-    for (final id in [0, 1, 2, 3, 4, 5, 6, 7]) {
+    for (final id in _keyMap.keys) {
       if (!ids.contains(id)) continue;
       final key     = _keyMap[id]!;
       final entries = data.indices[key] ?? [];

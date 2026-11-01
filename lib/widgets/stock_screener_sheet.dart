@@ -9,16 +9,31 @@ import '../services/screener_data_service.dart';
 enum _Logic { and, or_ }
 
 // Approximate stock counts per index (for UI display before data loads)
-const _kIndexCounts = {0: 486, 1: 100, 2: 80, 3: 513, 4: 155, 5: 39, 6: 21, 7: 85};
+const _kIndexCounts = {
+  0: 486, 1: 100, 2:  80, 3: 513, 4: 155,
+  5:  39, 6:  21, 7:  85, 8:  40, 9:  89,
+  10: 63, 11: 78, 12: 30, 13: 50, 14: 60,
+  15: 50, 16: 86, 17: 38,
+};
 const _kIndexLabels = {
-  0: 'S&P 500',
-  1: 'Nasdaq 100',
-  2: 'Nasdaq Interessant', // localized at display time
-  3: 'Russell 2000',
-  4: 'NYSE 200',
-  5: 'DAX 40',
-  6: 'SMI 20',
-  7: 'FTSE 100',
+  0:  'S&P 500',
+  1:  'Nasdaq 100',
+  2:  'Nasdaq Interessant', // localized at display time
+  3:  'Russell 2000',
+  4:  'NYSE 200',
+  5:  'DAX 40',
+  6:  'SMI 20',
+  7:  'FTSE 100',
+  8:  'CAC 40',
+  9:  'Nikkei 225',
+  10: 'TSX',
+  11: 'ASX 200',
+  12: 'STI',
+  13: 'Nifty 50',
+  14: 'Hang Seng',
+  15: 'EWZ Brasilien',
+  16: 'Skandinavien',
+  17: 'Osteuropa',
 };
 
 const _kPerfSteps = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
